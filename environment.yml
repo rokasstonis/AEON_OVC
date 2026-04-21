@@ -1,0 +1,25 @@
+name: np2_pipeline
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - jupyter
+  - ipywidgets
+  - pyyaml
+  - tqdm
+  - pip:
+    - spikeinterface[full]
+    - probeinterface
+    - neo
+    # Kilosort4 — GPU required; install separately if on CPU-only machine:
+    # pip install kilosort
+    # For manual curation after sorting:
+    - phy
+    - phylib

@@ -1,0 +1,30 @@
+session:
+  subject_id: "mouse01"
+  session_id: "2025-01-01_001"
+  experimenter: "Rokas"
+  brain_region: "RSP"          # target region
+  notes: ""
+
+# ---- Paths ----
+paths:
+  raw_dir: "/media/rokas/Data/Temp/Ephys/Sample_data/020426"           # folder containing .bin + timestamps files
+  processed_dir: "data/processed"
+  sorted_dir: "data/sorted"
+  results_dir: "results"
+
+# ---- Probe geometry ----
+probe:
+  # Probe type — used by ProbeInterface to load geometry.
+  # Options: "Neuropixels2.0-1shank"  or  "Neuropixels2.0-4shank"
+  model: "Neuropixels2.0-4shank" #should be NP2013 for probeinterface to read it from the database, needs to be // TODO
+  manufacturer: "imec"
+  # If you exported a ProbeInterface JSON from Bonsai (recommended), set path here.
+  # Leave null to use default geometry from ProbeInterface library.
+  probeinterface_json: null     # e.g. "data/raw/probe_config.json"
+
+acquisition:
+  # gain_to_uV: 2.34375
+  # offset_to_uV: 0.0
+  sampling_frequency: 30000  # Hz
+  n_channels: 384
+  dtype: "uint16" 
