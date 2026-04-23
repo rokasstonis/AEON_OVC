@@ -1,0 +1,10 @@
+Preflight report — 2025-01-01_001
+============================================================
+  [ PASS ] 1 chunk(s) found, all sizes consistent
+  [ PASS ] Duration 0.10 hr looks plausible
+  [ WARN ] Mean 2048 is far from mid-scale (32768) — possible gain misconfiguration or wrong dtype
+  [ WARN ] Very low std (267) — possible dead probe or wrong file
+  [ PASS ] Noise looks healthy: median 30.0 µV RMS, 3 dead, 0 noisy
+  [ WARN ] 10799999 timestamp gap(s) detected — dropped samples or PCIe buffer overflow. Check ONIX log.
+  [ PASS ] Probe attached: Neuropixels2.0-4shank, 384 contacts, depth range 0–705 µm
+  [ PASS ] Estimated scratch needed: 48 GB
