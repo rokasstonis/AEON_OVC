@@ -1,13 +1,13 @@
 session:
-  subject_id: "mouse01"
-  session_id: "2025-01-01_001"
+  subject_id: "BAA-1106718"
+  session_id: "2025-04-02_001"
   experimenter: "Rokas"
   brain_region: "RSP"          # target region
   notes: ""
 
 # ---- Paths ----
 paths:
-  raw_dir: "/media/rokas/Data/Temp/Ephys/Sample_data/020426"           # folder containing .bin + timestamps files
+  raw_dir: "/media/rokas/Data/Temp/Ephys/Sample_data/020426"           # folder containing .bin + timestamps files /ceph/aeon/test2/scratchpad/Rokas/020426/2026-04-02T083238Z/NeuropixelsV2 
   processed_dir: "data/processed"
   sorted_dir: "data/sorted"
   results_dir: "results"
@@ -45,9 +45,13 @@ sorting:
   sorter: "kilosort4"
   sorter_kwargs:
     do_correction: true
-    nblocks: 5
-  n_jobs: 4          # keep low for local
-  chunk_duration: "1s"
+    Th_universal: 9
+    Th_learned: 8
+    nblocks: 5        # fine for single-shank NP2.0 — this is spatial blocks
+                      # along the probe, not temporal. Leave at 5.
+  n_jobs: 16          # increase from 8 — matches cpus-per-task in the job script
+  chunk_duration: "2s"  # increase from 1s — HPC has more RAM, larger chunks
+                        # means fewer reads from Ceph during preprocessing
 
 quality_metrics:
   metrics:
