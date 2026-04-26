@@ -37,17 +37,18 @@ SESSION_ID="2025-04-02_001"
 CEPH_RAW="/ceph/aeon/test2/scratchpad/Rokas/020426/2026-04-02T083238Z/NeuropixelsV2"
 
 # Where results (sorting_analyzer, QC metrics, log) will be written
-CEPH_RESULTS="/ceph/aeon/test2/scratchpad/Rokas/results/${SESSION_ID}"
+CEPH_RESULTS="/ceph/branco/Rokas/Ephys/Results/${SESSION_ID}" #/ceph/branco/Rokas/Ephys
 
 # Scratch for large intermediates (preprocessed binary ~4TB, KS output ~5GB)
-# On SWC HPC there is no dedicated /scratch — we use Ceph directly.
+# On SWC HPC there is no dedicated /scratch — we use Ceph directly.``
 # Ceph can handle the sequential writes for preprocessing; KS4 is fine too
 # since its output is small. The preprocessed binary stays here after the job
 # so you can re-sort without re-preprocessing if needed.
-SCRATCH_BASE="/ceph/aeon/test2/scratchpad/Rokas/np2_scratch/${SESSION_ID}"
+SCRATCH_BASE="/ceph/branco/Rokas/Ephys/Results/np2_scratch/${SESSION_ID}"
 
 CONDA_ENV="np2_pipeline"
-REPO_DIR="${HOME}/np2_repo"
+CONDA_BASE="/ceph/apps/ubuntu-20/packages/miniconda/23.10.0"
+REPO_DIR="/ceph/branco/Rokas/Ephys/Pipeline"
 
 # =============================================================
 # Environment setup
@@ -63,7 +64,21 @@ echo "============================================"
 
 module load cuda/11.8             # matches cu118 PyTorch wheel
 
-source "${HOME}/miniconda3/etc/profile.d/conda.sh"
+# Fail early on path mistakes before wasting allocation time.
+if [[ ! -f "${CONDA_BASE}/etc/profile.d/conda.sh" ]]; then
+    echo "ERROR: conda.sh not found at ${CONDA_BASE}/etc/profile.d/conda.sh"
+    exit 1
+fi
+if [[ ! -f "${REPO_DIR}/config.yml" ]]; then
+    echo "ERROR: config.yml not found at ${REPO_DIR}/config.yml"
+    exit 1
+fi
+if [[ ! -f "${REPO_DIR}/scripts/hpc_pipeline.py" ]]; then
+    echo "ERROR: hpc_pipeline.py not found at ${REPO_DIR}/scripts/hpc_pipeline.py"
+    exit 1
+fi
+
+source "${CONDA_BASE}/etc/profile.d/conda.sh"
 conda activate "${CONDA_ENV}"
 
 echo "Python    : $(which python)"
@@ -109,14 +124,14 @@ EOF
 python - << EOF
 import yaml
 
-with open("${REPO_DIR}/config.yaml") as f:
+with open("${REPO_DIR}/config.yml") as f:
     cfg = yaml.safe_load(f)
 
 cfg["paths"]["raw_dir"]      = "${CEPH_RAW}"
 cfg["session"]["session_id"] = "${SESSION_ID}"
 cfg["sorting"]["n_jobs"]     = int("${SLURM_CPUS_PER_TASK}")
 
-with open("${SCRATCH_BASE}/config_runtime.yaml", "w") as f:
+with open("${SCRATCH_BASE}/config_runtime.yml", "w") as f:
     yaml.dump(cfg, f)
 
 print(f"Runtime config written:")
@@ -139,7 +154,7 @@ echo ""
 echo "Starting hpc_pipeline.py at $(date)"
 
 python "${REPO_DIR}/scripts/hpc_pipeline.py" \
-    --config  "${SCRATCH_BASE}/config_runtime.yaml" \
+    --config  "${SCRATCH_BASE}/config_runtime.yml" \
     --scratch "${SCRATCH_BASE}" \
     --ceph-results "${CEPH_RESULTS}" \
     --n-jobs  "${SLURM_CPUS_PER_TASK}"

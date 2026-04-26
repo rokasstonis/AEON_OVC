@@ -47,7 +47,7 @@ def build_preprocessing_chain(
     #         print("[0] Converted unsigned recording to signed dtype")
     # else:
     #     rec = recording
-        rec = recording
+    rec = recording
     # ------------------------------------------------------------------
     # Step 1: High-pass filter
     # ------------------------------------------------------------------
@@ -66,8 +66,9 @@ def build_preprocessing_chain(
     # spatial operation (CAR, destripe) that compares across channels.
     # ------------------------------------------------------------------
     # rec = si.phase_shift(rec)
-    # if verbose:
-    print("[2] Phase shift correction is skipped for now (spikeinterface.preprocessing.phase_shift is not yet available)")
+    # if verbose: this is not ready yet
+    if verbose:
+        print("[2] Phase shift correction is skipped for now (spikeinterface.preprocessing.phase_shift is not yet available)")
 
     # ------------------------------------------------------------------
     # Step 3: Bad channel detection and spatial interpolation
