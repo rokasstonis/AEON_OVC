@@ -84,12 +84,12 @@ Scripts can be run from anywhere within the project. DJ 2.x auto-discovers `data
 
 ## 4. Configure your experiment
 
-Before running the pipeline, update the experiment configuration at the top of `scripts/pipeline/setup_pipeline.py`:
+The experiment configuration is already set at the top of `scripts/pipeline/setup_pipeline.py`:
 
-- `EXPERIMENT_NAME` — your experiment name (e.g., the name registered in the pipeline)
-- `DATA_DIR_RELATIVE` — the path to your raw data relative to the ceph root (e.g., `aeon/data/raw/AEON3/ovcBehav0`)
+- `EXPERIMENT_NAME` = `ovc01-aeon3`
+- `DATA_DIR_RELATIVE` = `aeon/data/raw/AEON3/ovc01`
 
-Make the same `EXPERIMENT_NAME` change in `scripts/pipeline/validate_pipeline.py`.
+The same experiment name is set in `scripts/pipeline/validate_pipeline.py`. If these ever need to change, update both files.
 
 ---
 
@@ -131,10 +131,10 @@ import datajoint as dj
 from aeon.dj_pipeline import acquisition, streams
 
 # Query your experiment's chunks
-chunks = (acquisition.Chunk & {"experiment_name": "your-experiment-name"}).to_pandas()
+chunks = (acquisition.Chunk & {"experiment_name": "ovc01-aeon3"}).to_pandas()
 
 # Fetch epoch metadata
-configs = (acquisition.EpochConfig & {"experiment_name": "your-experiment-name"}).to_dicts()
+configs = (acquisition.EpochConfig & {"experiment_name": "ovc01-aeon3"}).to_dicts()
 ```
 
 ---

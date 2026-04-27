@@ -18,7 +18,7 @@ import sys
 # ---------------------------------------------------------------------------
 # Experiment configuration (must match setup_pipeline.py)
 # ---------------------------------------------------------------------------
-EXPERIMENT_NAME = "TODO-update-experiment-name"  # Must match setup_pipeline.py
+EXPERIMENT_NAME = "ovc01-aeon3"  # Must match setup_pipeline.py
 DEVICES_SCHEMA = "swc.aeon_exp.foragingOVC.experiment:Experiment"
 ARENA_NAME = "circle-2m"
 STREAM_POPULATE_LIMIT = 10

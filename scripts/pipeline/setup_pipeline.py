@@ -25,13 +25,13 @@ import sys
 # ---------------------------------------------------------------------------
 # Experiment configuration — UPDATE THESE FOR YOUR EXPERIMENT
 # ---------------------------------------------------------------------------
-EXPERIMENT_NAME = "TODO-update-experiment-name"  # e.g. "ovcBehav0-aeon3"
+EXPERIMENT_NAME = "ovc01-aeon3"
 DEVICES_SCHEMA = "swc.aeon_exp.foragingOVC.experiment:Experiment"
 ARENA_NAME = "circle-2m"  # Pre-populated in lab.Arena Lookup table
 
 # Relative path from the ceph_aeon repository root to the raw data directory.
 # e.g. "aeon/data/raw/AEON3/abcBehav0" for foragingABC
-DATA_DIR_RELATIVE = "TODO-update-data-path"  # e.g. "aeon/data/raw/AEON3/ovcBehav0"
+DATA_DIR_RELATIVE = "aeon/data/raw/AEON3/ovc01"
 
 # Set to True once pipeline is working end-to-end, to allow partial results
 # when some entries fail. When False, populate() raises on the first error.
