@@ -1,2 +1,12 @@
 /data/
 /results/
+
+# DataJoint credentials (never commit)
+.secrets/
+
+# Python virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+*.pyc

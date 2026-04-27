@@ -1,0 +1,8 @@
+{
+  "database": {
+    "host": "aeon-db",
+    "port": 3306,
+    "reconnect": true,
+    "database_prefix": "aeon_foragingOVC_"
+  }
+}

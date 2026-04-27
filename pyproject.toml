@@ -1,0 +1,40 @@
+[project]
+name = "aeon-ovc-analysis"
+version = "0.1.0"
+requires-python = ">=3.11,<3.13"
+description = "Analysis pipeline for OVC experiments in AEON arena"
+dependencies = [
+    "aeon-mecha",
+    "swc-aeon-ovc",
+    "datajoint",
+    "ipykernel",
+    "jupyter",
+    "matplotlib",
+    "numpy",
+    "pandas>=1.3",
+    "scipy",
+    "seaborn",
+    "pyyaml",
+    "tqdm",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.uv]
+# aeon_mecha's pyproject.toml pins swc-aeon to a git source (branch=main), and
+# setuptools-scm resolves that to 0.1.1.devN instead of 0.2.0 (missing git tags
+# in GitHub tarball download). This overrides the >=0.2.0 constraint from
+# swc-aeon-ovc. Upstream fix: add fallback_version to aeon_api's
+# setuptools-scm config. See: https://github.com/SainsburyWellcomeCentre/aeon_api
+override-dependencies = ["swc-aeon>=0.1.0"]
+
+[tool.uv.sources]
+aeon-mecha = { path = "./submodules/aeon_mecha", editable = true }
+swc-aeon-rigs = { git = "https://github.com/SainsburyWellcomeCentre/aeon_swc_rigs.git", branch = "main" }
+swc-aeon-ovc = { git = "https://github.com/SainsburyWellcomeCentre/aeon_exp_OVC.git", branch = "dev/aa-fix-namespace" }
+datajoint = { git = "https://github.com/datajoint/datajoint-python.git", branch = "master" }
