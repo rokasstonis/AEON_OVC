@@ -258,7 +258,7 @@ def run_hpc_pipeline(cfg: dict, args):
     preproc_path = scratch_processed / "preprocessed_binary"
     if preproc_path.exists():
         log.info(f"Step 4: Preprocessed binary exists on scratch, loading")
-        rec_pre = si.load_extractor(str(preproc_path))
+        rec_pre = si.load(str(preproc_path))
     else:
         log.info("Step 4: Writing preprocessed binary to scratch")
         log.info("  (This streams directly from Ceph → scratch: expect ~1 hr/TB)")

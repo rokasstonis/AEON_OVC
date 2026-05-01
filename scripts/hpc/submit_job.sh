@@ -22,7 +22,7 @@
 #SBATCH --gres=gpu:l40s:1           # L40S: 48 GB VRAM, plenty for KS4
                                      # swap to gpu:h100:1 if L40S busy
 #SBATCH --cpus-per-task=16          # 16 CPU threads for SpikeInterface
-#SBATCH --mem=64G                    # 64 GB RAM
+#SBATCH --mem=300G                    # 300 GB RAM - may be a bit greedy
 #SBATCH --time=48:00:00             # 48 hr — preprocessing + sorting + postproc
 #SBATCH --output=logs/np2_%j.out
 #SBATCH --error=logs/np2_%j.err
@@ -31,10 +31,10 @@
 # USER SETTINGS — edit these for each session
 # =============================================================
 
-SESSION_ID="2025-04-02_001"
+SESSION_ID="2025-03-26_001"
 
 # Where your raw .bin and Clock files live on Ceph
-CEPH_RAW="/ceph/aeon/test2/scratchpad/Rokas/020426/2026-04-02T083238Z/NeuropixelsV2"
+CEPH_RAW="/ceph/aeon/test2/scratchpad/Rokas/260226/aa-fix-namespace-f92c2e6/2026-03-26T130717Z/NeuropixelsV2"
 
 # Where results (sorting_analyzer, QC metrics, log) will be written
 CEPH_RESULTS="/ceph/branco/Rokas/Ephys/Results/${SESSION_ID}" #/ceph/branco/Rokas/Ephys
@@ -131,7 +131,7 @@ cfg["paths"]["raw_dir"]      = "${CEPH_RAW}"
 cfg["session"]["session_id"] = "${SESSION_ID}"
 cfg["sorting"]["n_jobs"]     = int("${SLURM_CPUS_PER_TASK}")
 
-with open("${SCRATCH_BASE}/config_runtime.yml", "w") as f:
+with open("${SCRATCH_BASE}/config_runtime.yaml", "w") as f:
     yaml.dump(cfg, f)
 
 print(f"Runtime config written:")
@@ -154,7 +154,7 @@ echo ""
 echo "Starting hpc_pipeline.py at $(date)"
 
 python "${REPO_DIR}/scripts/hpc_pipeline.py" \
-    --config  "${SCRATCH_BASE}/config_runtime.yml" \
+    --config  "${SCRATCH_BASE}/config_runtime.yaml" \
     --scratch "${SCRATCH_BASE}" \
     --ceph-results "${CEPH_RESULTS}" \
     --n-jobs  "${SLURM_CPUS_PER_TASK}"

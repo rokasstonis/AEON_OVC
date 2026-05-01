@@ -1,6 +1,6 @@
 session:
   subject_id: "BAA-1106718"
-  session_id: "2025-04-02_001"
+  session_id: "2025-03-26_001"
   experimenter: "Rokas"
   brain_region: "RSP"          # target region
   notes: ""
@@ -42,7 +42,7 @@ preprocessing:
   car_local_outer_radius_um: 100
 
 sorting:
-  sorter: "kilosort4"
+  sorter: "kilosort4" #this is the default sorter, KS2.5 could also be used but not tested yet
   sorter_kwargs:
     do_correction: true
     Th_universal: 9
