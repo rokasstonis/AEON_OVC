@@ -7,6 +7,9 @@ from spikeinterface.preprocessing import unsigned_to_signed
 def build_preprocessing_chain(
     recording: BaseRecording,
     highpass_freq_min: float = 300.0,
+    apply_bandpass: bool = True,
+    bandpass_freq_min: float = 300.0,
+    bandpass_freq_max: float = 3000.0,
     bad_channel_score_threshold: float = 0.5,
     artifact_removal: str = "car_local",
     car_local_inner_radius_um: float = 50.0,
@@ -49,14 +52,23 @@ def build_preprocessing_chain(
     #     rec = recording
     rec = recording
     # ------------------------------------------------------------------
-    # Step 1: High-pass filter
+    # Step 1: Frequency filter (high-pass or bandpass)
     # ------------------------------------------------------------------
-    rec = si.highpass_filter(
-        rec,
-        freq_min=highpass_freq_min,
-    )
-    if verbose:
-        print(f"[1] High-pass filter: cutoff = {highpass_freq_min} Hz")
+    if apply_bandpass:
+        rec = si.bandpass_filter(
+            rec,
+            freq_min=bandpass_freq_min,
+            freq_max=bandpass_freq_max,
+        )
+        if verbose:
+            print(f"[1] Bandpass filter: {bandpass_freq_min}-{bandpass_freq_max} Hz") #TODO: make this always printable
+    else:
+        rec = si.highpass_filter(
+            rec,
+            freq_min=highpass_freq_min,
+        )
+        if verbose:
+            print(f"[1] High-pass filter: cutoff = {highpass_freq_min} Hz")
 
     # ------------------------------------------------------------------
     # Step 2: Inter-sample phase shift correction

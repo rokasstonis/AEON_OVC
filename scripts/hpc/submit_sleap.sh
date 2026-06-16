@@ -16,7 +16,6 @@
 #SBATCH --job-name=sleap_inference
 #SBATCH --partition=gpu_branco
 #SBATCH --gres=gpu:1
-#SBATCH --constraint="l40s|h100"
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
 #SBATCH --time=02:00:00
@@ -28,9 +27,10 @@
 # USER SETTINGS
 # =============================================================
 
-SESSION_ID="2025-03-26_001"
+SESSION_ID="2025-04-02_001"
 VIDEO_LIST="/ceph/branco/Rokas/Ephys/Results/Behaviour/${SESSION_ID}/video_list.txt"
 CENTROID_MODEL="/ceph/branco/Rokas/Ephys/SLEAP/260326/models/260501_113825.centroid.n=13"
+CENTERED_INSTANCE_MODEL="/ceph/branco/Rokas/Ephys/SLEAP/260326/models/260501_114957.centered_instance.n=13" 
 RESULTS_DIR="/ceph/branco/Rokas/Ephys/Results/Behaviour/${SESSION_ID}/sleap_predictions"
 OUTPUT_FORMAT="h5"
 REPO_DIR="/ceph/branco/Rokas/Ephys/Pipeline"
@@ -117,8 +117,10 @@ echo "Starting inference at $(date)"
 
 sleap-track "${VIDEO_PATH}" \
     --model "${CENTROID_MODEL}" \
+    --model "${CENTERED_INSTANCE_MODEL}" \
     --output "${RESULTS_DIR}/${VIDEO_NAME}.slp" \
     --batch-size 8 \
+    --max_tracks 1 \
     --peak-threshold 0.2 \
     --verbosity json
 

@@ -1,15 +1,15 @@
 session:
   subject_id: "BAA-1106718"
-  session_id: "2025-03-26_001"
+  session_id: "2025-04-02_001"
   experimenter: "Rokas"
   brain_region: "RSP"          # target region
   notes: ""
 
 # ---- Paths ----
 paths:
-  raw_dir: "/media/rokas/Data/Temp/Ephys/Sample_data/020426"           # folder containing .bin + timestamps files /ceph/aeon/test2/scratchpad/Rokas/020426/2026-04-02T083238Z/NeuropixelsV2 
-  processed_dir: "data/processed"
-  sorted_dir: "data/sorted"
+  raw_dir: "/home/rokas/Documents/Ephys/070626/sample4"           # folder containing .bin + timestamps files /ceph/aeon/test2/scratchpad/Rokas/020426/2026-04-02T083238Z/NeuropixelsV2 
+  processed_dir: "/home/rokas/Documents/Ephys/070626/sample4/processed"
+  sorted_dir: "/home/rokas/Documents/Ephys/070626/sample4/sorted"
   results_dir: "results"
 
 # ---- Probe geometry ----
@@ -40,17 +40,21 @@ preprocessing:
   artifact_removal: "car_local"
   car_local_inner_radius_um: 50
   car_local_outer_radius_um: 100
+  # Optional bandpass filter applied to the preprocessed extractor (lazy)
+  apply_bandpass: True
+  bandpass_freq_min: 300
+  bandpass_freq_max: 5000
 
 sorting:
   sorter: "kilosort4" #this is the default sorter, KS2.5 could also be used but not tested yet
   sorter_kwargs:
-    do_correction: true
+    do_correction: True
     Th_universal: 9
     Th_learned: 8
     nblocks: 5        # fine for single-shank NP2.0 — this is spatial blocks
                       # along the probe, not temporal. Leave at 5.
-  n_jobs: 16          # increase from 8 — matches cpus-per-task in the job script
-  chunk_duration: "2s"  # increase from 1s — HPC has more RAM, larger chunks
+  n_jobs: 8         # increase from 8 — matches cpus-per-task in the job script
+  chunk_duration: "1s"  # increase from 1s — HPC has more RAM, larger chunks
                         # means fewer reads from Ceph during preprocessing
 
 quality_metrics:

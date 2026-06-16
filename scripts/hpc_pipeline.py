@@ -70,7 +70,7 @@ try:
     build_preprocessing_chain = custom_preprocess.build_preprocessing_chain
     check_drift = custom_preprocess.check_drift
 except Exception:
-    print("[FATAL] Failed to load local pipeline modules.", file=sys.stderr)
+    print("[FEMME FATAL] Failed to load local pipeline modules.", file=sys.stderr)
     print(f"  repo_root: {repo_root}", file=sys.stderr)
     print(f"  expected io.py: {repo_root / 'src' / 'io.py'}", file=sys.stderr)
     print(f"  expected preprocess.py: {repo_root / 'src' / 'preprocess.py'}", file=sys.stderr)
@@ -195,6 +195,9 @@ def run_hpc_pipeline(cfg: dict, args):
     rec_pre, bad_channels = build_preprocessing_chain(
         recording,
         highpass_freq_min=pre["highpass_freq_min"],
+        apply_bandpass=pre.get("apply_bandpass", False),
+        bandpass_freq_min=pre.get("bandpass", {}).get("freq_min", 300),
+        bandpass_freq_max=pre.get("bandpass", {}).get("freq_max", 6000),
         bad_channel_score_threshold=pre["bad_channel_score_threshold"],
         artifact_removal=pre["artifact_removal"],
         car_local_inner_radius_um=pre.get("car_local_inner_radius_um", 50),
@@ -204,6 +207,8 @@ def run_hpc_pipeline(cfg: dict, args):
     log.info(f"  Bad channels: {len(bad_channels)} — {bad_channels}")
     with open(scratch_processed / "bad_channels.txt", "w") as f:
         f.write("\n".join(map(str, bad_channels)))
+
+    # Note: bandpass (if requested) was applied inside the preprocessing chain.
 
     # ----------------------------------------------------------------
     # 3. Drift check (lightweight — subset of peaks)
@@ -269,6 +274,8 @@ def run_hpc_pipeline(cfg: dict, args):
             **job_kwargs,
         )
         log.info(f"  Done in {(time.time() - t_write)/60:.1f} min")
+
+    # Bandpass already applied inside the preprocessing chain if requested.
 
     if args.skip_sorting:
         log.info("skip-sorting flag set — stopping after preprocessing")

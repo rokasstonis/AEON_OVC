@@ -54,6 +54,7 @@ preprocess_spec = importlib.util.spec_from_file_location("custom_preprocess", pr
 custom_preprocess = importlib.util.module_from_spec(preprocess_spec)
 preprocess_spec.loader.exec_module(custom_preprocess)
 build_preprocessing_chain = custom_preprocess.build_preprocessing_chain
+check_drift = custom_preprocess.check_drift
 
 
 # ============================================================
@@ -128,6 +129,9 @@ def run_pipeline(cfg: dict, args):
     rec_preprocessed, bad_channels = build_preprocessing_chain(
     recording,
     highpass_freq_min=pre['highpass_freq_min'],
+    apply_bandpass=pre['apply_bandpass'],
+    bandpass_freq_min=pre['bandpass_freq_min'],
+    bandpass_freq_max=pre['bandpass_freq_max'],
     bad_channel_score_threshold=pre['bad_channel_score_threshold'],
     artifact_removal=pre['artifact_removal'])
 
@@ -157,15 +161,57 @@ def run_pipeline(cfg: dict, args):
                       progress_bar=True)
     preprocessed_path = processed_dir / "preprocessed_binary"
     if not preprocessed_path.exists():
-        rec_preprocessed = rec_preprocessed.save(
-            folder=str(preprocessed_path),
-            format="binary",
-            **job_kwargs,
-        )
-        print(f"Saved to {preprocessed_path}")
+        try:
+            rec_preprocessed = rec_preprocessed.save(
+                folder=str(preprocessed_path),
+                format="binary",
+                **job_kwargs,
+            )
+            print(f"Saved to {preprocessed_path}")
+        except Exception:
+            import traceback as _tb
+            import shutil as _sh
+
+            print("Error while saving preprocessed binary:", file=sys.stderr)
+            _tb.print_exc()
+
+            try:
+                total, used, free = _sh.disk_usage(str(processed_dir))
+                print(
+                    f"Disk usage for {processed_dir}: total={total//(2**30)} GiB used={used//(2**30)} GiB free={free//(2**30)} GiB",
+                )
+            except Exception as _e:
+                print("Could not determine disk usage:", _e)
+
+            try:
+                testfile = processed_dir / ".write_test"
+                with open(testfile, "w") as tf:
+                    tf.write("x")
+                testfile.unlink()
+                print(f"Write test to {processed_dir} succeeded")
+            except Exception as _e:
+                print(f"Write test to {processed_dir} failed: {_e}")
+
+            raise
     else:
         print(f"Preprocessed binary already exists at {preprocessed_path}, loading.")
-        rec_preprocessed = si.load_extractor(str(preprocessed_path))
+        try:
+            rec_preprocessed = si.load_extractor(str(preprocessed_path))
+        except Exception as exc:
+            print(
+                f"Warning: failed to load existing preprocessed binary at {preprocessed_path}: {exc}",
+                file=sys.stderr,
+            )
+            print("Rebuilding the preprocessed binary from the current preprocessing chain...")
+            import shutil as _sh
+
+            _sh.rmtree(preprocessed_path, ignore_errors=True)
+            rec_preprocessed = rec_preprocessed.save(
+                folder=str(preprocessed_path),
+                format="binary",
+                **job_kwargs,
+            )
+            print(f"Re-saved to {preprocessed_path}")
 
     if args.skip_sorting:
         print("\nSkip-sorting flag set — stopping after preprocessing.")
