@@ -36,5 +36,5 @@ override-dependencies = ["swc-aeon>=0.1.0"]
 [tool.uv.sources]
 aeon-mecha = { path = "./submodules/aeon_mecha", editable = true }
 swc-aeon-rigs = { git = "https://github.com/SainsburyWellcomeCentre/aeon_swc_rigs.git", branch = "main" }
-swc-aeon-ovc = { git = "https://github.com/SainsburyWellcomeCentre/aeon_exp_OVC.git", branch = "dev/aa-fix-namespace" }
+swc-aeon-ovc = { git = "https://github.com/SainsburyWellcomeCentre/aeon_exp_OVC.git", branch = "main" }
 datajoint = { git = "https://github.com/datajoint/datajoint-python.git", branch = "master" }
