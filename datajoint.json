@@ -1,8 +1,15 @@
 {
   "database": {
-    "host": "aeon-db", #aeondj
+    "host": "aeondj",
     "port": 3306,
     "reconnect": true,
     "database_prefix": "aeon_foragingOVC_"
+  },
+  "stores": {
+    "dj_store": {
+      "protocol": "file",
+      "location": "/ceph/aeon/aeon/dj_store",
+      "stage": "/ceph/aeon/aeon/dj_store"
+    }
   }
 }

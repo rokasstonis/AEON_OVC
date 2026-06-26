@@ -4,7 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.11,<3.13"
 description = "Analysis pipeline for OVC experiments in AEON arena"
 dependencies = [
-    "aeon-mecha",
+    "aeon-mecha[spike_sorting]",
     "swc-aeon-ovc",
     "datajoint",
     "ipykernel",
