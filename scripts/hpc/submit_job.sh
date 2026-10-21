@@ -31,10 +31,10 @@
 # USER SETTINGS — edit these for each session
 # =============================================================
 
-SESSION_ID="2025-04-02_001"
+SESSION_ID="2025-08-31_001"
 
 # Where your raw .bin and Clock files live on Ceph
-CEPH_RAW="/ceph/aeon/test2/scratchpad/Rokas/020426/2026-04-02T083238Z/NeuropixelsV2"
+CEPH_RAW="/ceph/aeon/data/raw/AEONX1/ProjectAeonOVC/2026-08-31T160655Z/NeuropixelsV2"
 
 # Where results (sorting_analyzer, QC metrics, log) will be written
 CEPH_RESULTS="/ceph/branco/Rokas/Ephys/Results/${SESSION_ID}" #/ceph/branco/Rokas/Ephys
