@@ -25,13 +25,13 @@ import sys
 # ---------------------------------------------------------------------------
 # Experiment configuration — UPDATE THESE FOR YOUR EXPERIMENT
 # ---------------------------------------------------------------------------
-EXPERIMENT_NAME = "ovc01-aeon3"
+EXPERIMENT_NAME = "ProjectAeonOVC-2026-09-14_001"
 DEVICES_SCHEMA = "swc.aeon_exp.foragingOVC.experiment:Experiment"
 ARENA_NAME = "circle-2m"  # Pre-populated in lab.Arena Lookup table
 
 # Relative path from the ceph_aeon repository root to the raw data directory.
 # e.g. "aeon/data/raw/AEON3/abcBehav0" for foragingABC
-DATA_DIR_RELATIVE = "aeon/data/raw/AEON3/ovc01"
+DATA_DIR_RELATIVE = "aeon/data/raw/AEON3/experiment_beh/aeon-ovc-beh-2026-09-14"
 
 # Set to True once pipeline is working end-to-end, to allow partial results
 # when some entries fail. When False, populate() raises on the first error.
@@ -149,7 +149,7 @@ def step_verify_config(dry_run=False):
 # Step 2: Create base catalog tables
 # ---------------------------------------------------------------------------
 def step_create_base_tables(dry_run=False):
-    print_header(2, "Create Base Catalog Tables (StreamType, DeviceType, Device)")
+    print_header(2, "Create Base Catalog Tables (StreamType, DeviceType, DeviceName)")
 
     if dry_run:
         print_info("Would call: streams_maker.main(create_tables=False)")
@@ -160,9 +160,10 @@ def step_create_base_tables(dry_run=False):
     print_info("Running streams_maker.main(create_tables=False)...")
     streams_maker.main(create_tables=False)
 
-    from aeon.dj_pipeline.streams import DeviceType, StreamType, Device
+    # aeon_mecha >=0.4: the device catalog table is DeviceName (Device was removed)
+    from aeon.dj_pipeline.streams import DeviceType, StreamType, DeviceName
 
-    for table_cls, name in [(StreamType, "StreamType"), (DeviceType, "DeviceType"), (Device, "Device")]:
+    for table_cls, name in [(StreamType, "StreamType"), (DeviceType, "DeviceType"), (DeviceName, "DeviceName")]:
         try:
             len(table_cls())
             print_ok(f"{name} table exists in database")
@@ -440,7 +441,7 @@ def main():
         epilog="""
 Steps:
   1  verify_config        Check DJ config, DB connection, ceph path
-  2  create_base_tables   Create StreamType, DeviceType, Device tables
+  2  create_base_tables   Create StreamType, DeviceType, DeviceName tables
   3  populate_catalog     Fill catalog from Pydantic Experiment class
   4  create_stream_tables Create ExperimentDevice & DeviceDataStream tables
   5  register_experiment  Insert Experiment, Directory, DevicesSchema

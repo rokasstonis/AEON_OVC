@@ -239,7 +239,7 @@ def check_epoch_config(results):
         results.record("EpochConfig", "No populate errors", False, f"Could not check: {e}")
 
     try:
-        devices = streams.Device.to_dicts()
+        devices = streams.DeviceName.to_dicts()
         results.record("EpochConfig", "Devices registered", len(devices) > 0,
                         f"{len(devices)} devices")
     except Exception as e:
