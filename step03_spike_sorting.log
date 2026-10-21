@@ -1,0 +1,40 @@
+============================================================
+  Step 3: Spike Sorting
+============================================================
+
+--- 1/3: Setup sorting prerequisites ---
+[2026-10-20 12:37:36] DataJoint 2.3.4 connected to rstonis@aeondj:3306
+
+=== Insertion 1 ===
+SortingParamSet already exists: paramset_id=403
+Using electrode config: probe_type=neuropixels2.0-multishank, electrode_config_name=M01_ProbeA_4Shanks_1500_to_2200um
+  ElectrodeGroup 'shank0': 66 electrodes
+SortingTask: inserted 3 entries (3 total)
+
+--- 2/3: Run preprocessing ---
+Pending PreProcessing entries: 0
+Nothing to preprocess.
+
+--- 3/3: Generate SLURM scripts ---
+Wrote: /ceph/branco/Rokas/Ephys/AEON_OVC/run_aeon_spike_sorting_ProjectAeonOVC-2026-04-02_001_BAA-1106718.py (3 keys)
+Wrote: /ceph/branco/Rokas/Ephys/AEON_OVC/run_aeon_spike_sorting_ProjectAeonOVC-2026-04-02_001_BAA-1106718.sh
+
+  Submit:
+      sbatch run_aeon_spike_sorting_ProjectAeonOVC-2026-04-02_001_BAA-1106718.sh
+
+  Monitor:
+      squeue -u $USER                              # job status
+      tail -f slurm_output/<node>_<jobid>_<task>.out  # live log
+
+  If jobs fail:
+      1. Re-run write_spike_sorting_scripts() to get fresh scripts
+         with only the remaining keys
+      2. If jobs are stuck, set CLEAR_JOB = True in the .py script
+         (see comments there for details)
+
+  After all sorting completes, continue to Step 4.
+============================================================
+  Step 3 complete.
+  Submit the SLURM job and wait for it to complete.
+  Then continue to Step 4 (post-processing and curation).
+============================================================

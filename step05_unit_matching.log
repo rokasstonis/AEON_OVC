@@ -1,0 +1,32 @@
+============================================================
+  Step 5: Unit Matching
+============================================================
+
+--- 1/3: Sync spikes ---
+[2026-10-20 08:10:49] DataJoint 2.3.4 connected to rstonis@aeondj:3306
+SortedSpikes entries:       0
+SyncedSpikes entries (pre): 0
+No SortedSpikes entries found. Run step 4 (post-sorting) first.
+
+--- 2/3: Run unit matching ---
+Seed block start (earliest block): 2026-09-14 16:35:05.242163
+Inserted UnitMatchingParamSet: matching_paramset_id=1, method=spike_time_overlap, delta_time=0.4ms
+
+SyncedSpikes entries:           0
+ApplyOfficialCuration entries:  0
+
+WARNING: No ApplyOfficialCuration entries found. UnitMatching requires curation for every block. Run step 4 first (auto-approval or manual curation).
+
+--- 3/3: Verify matching ---
+Matching results for 'ProjectAeonOVC-2026-09-14_001':
+  SyncedSpikes entries:       0
+  UnitMatching entries:       0
+  GlobalUnit count:           0
+  UnitMatching.Unit entries:  0 (unit-to-global mappings)
+  UnitMatching.Spikes entries: 0 (spike data per global unit per chunk)
+
+No global units found. Run unit matching first.
+
+============================================================
+  Step 5 complete. Ready for analysis (Step 6).
+============================================================

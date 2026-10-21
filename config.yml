@@ -20,7 +20,7 @@ probe:
   manufacturer: "imec"
   # If you exported a ProbeInterface JSON from Bonsai (recommended), set path here.
   # Leave null to use default geometry from ProbeInterface library.
-  probeinterface_json: null     # e.g. "data/raw/probe_config.json"
+  probeinterface_json: "probe_output_test.json"     # e.g. "data/raw/probe_config.json"
 
 acquisition:
   gain_to_uV: 3.02734375 #// TODO: calculate from spike glx meta file gain_to_uV = (imAiRangeMax / imMaxInt) * (1 / imChan0apGain) * 1e6

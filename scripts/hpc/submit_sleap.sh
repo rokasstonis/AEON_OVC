@@ -7,35 +7,68 @@
 # all array tasks to finish before stitching predictions together.
 #
 # Usage:
-#   1. Generate video list:
-#        find /path/to/videos -name "*.mp4" | sort > video_list.txt
-#   2. Set N below to: wc -l video_list.txt
-#   3. sbatch scripts/hpc/submit_sleap.sh
+#   bash scripts/hpc/submit_sleap.sh
+#
+# The submitter creates a sorted list of .avi files and submits the
+# correctly sized SLURM array. Array tasks re-enter this script with
+# --worker.
 # =============================================================
-
-#SBATCH --job-name=sleap_inference
-#SBATCH --partition=gpu_branco
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
-#SBATCH --time=02:00:00
-#SBATCH --array=1-29%5            # ← update to wc -l video_list.txt
-#SBATCH --output=/ceph/branco/Rokas/Ephys/Results/Behaviour/logs/sleap_%A_%a.out
-#SBATCH --error=/ceph/branco/Rokas/Ephys/Results/Behaviour/logs/sleap_%A_%a.err
 
 # =============================================================
 # USER SETTINGS
 # =============================================================
 
-SESSION_ID="2025-04-02_001"
-VIDEO_LIST="/ceph/branco/Rokas/Ephys/Results/Behaviour/${SESSION_ID}/video_list.txt"
-CENTROID_MODEL="/ceph/branco/Rokas/Ephys/SLEAP/260326/models/260501_113825.centroid.n=13"
-CENTERED_INSTANCE_MODEL="/ceph/branco/Rokas/Ephys/SLEAP/260326/models/260501_114957.centered_instance.n=13" 
+SESSION_ID="2025-08-31_001"
+VIDEO_DIR="/ceph/aeon/aeon/data/raw/AEON3/experiment_beh/2026-08-31T151850Z/CameraTop"
+CENTROID_MODEL="/ceph/branco/Rokas/Ephys/SLEAP/210926/260921_182212.centroid.n=63"
+CENTERED_INSTANCE_MODEL="/ceph/branco/Rokas/Ephys/SLEAP/210926/260921_185649.centered_instance.n=63" 
 RESULTS_DIR="/ceph/branco/Rokas/Ephys/Results/Behaviour/${SESSION_ID}/sleap_predictions"
+VIDEO_LIST="${RESULTS_DIR}/video_list.txt"
 OUTPUT_FORMAT="h5"
 REPO_DIR="/ceph/branco/Rokas/Ephys/Pipeline"
 CONDA_BASE="/ceph/apps/ubuntu-20/packages/miniconda/23.10.0"
 CONDA_ENV="sleap_legacy"
+
+# =============================================================
+# Submit the array after discovering the videos. This block runs on
+# the login node when the script is invoked with bash, not via sbatch.
+# =============================================================
+
+if [ "${1:-}" != "--worker" ]; then
+    if [ ! -d "${VIDEO_DIR}" ]; then
+        echo "ERROR: video directory not found: ${VIDEO_DIR}"
+        exit 1
+    fi
+
+    mkdir -p "${RESULTS_DIR}" \
+        "/ceph/branco/Rokas/Ephys/Results/Behaviour/logs"
+
+    find "${VIDEO_DIR}" -type f -name '*.avi' -print | sort > "${VIDEO_LIST}"
+    VIDEO_COUNT=$(wc -l < "${VIDEO_LIST}")
+
+    if [ "${VIDEO_COUNT}" -eq 0 ]; then
+        echo "ERROR: no .avi videos found in ${VIDEO_DIR}"
+        rm -f "${VIDEO_LIST}"
+        exit 1
+    fi
+
+    SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+    echo "Found ${VIDEO_COUNT} .avi videos"
+    echo "Video list: ${VIDEO_LIST}"
+
+    sbatch \
+        --job-name=sleap_inference \
+        --partition=gpu_branco \
+        --gres=gpu:1 \
+        --cpus-per-task=4 \
+        --mem=16G \
+        --time=02:00:00 \
+        --array="1-${VIDEO_COUNT}%5" \
+        --output="/ceph/branco/Rokas/Ephys/Results/Behaviour/logs/sleap_%A_%a.out" \
+        --error="/ceph/branco/Rokas/Ephys/Results/Behaviour/logs/sleap_%A_%a.err" \
+        "${SCRIPT_PATH}" --worker
+    exit $?
+fi
 
 # =============================================================
 # On the very first task (task 1), submit the concat job as a
@@ -121,6 +154,7 @@ sleap-track "${VIDEO_PATH}" \
     --output "${RESULTS_DIR}/${VIDEO_NAME}.slp" \
     --batch-size 8 \
     --max_tracks 1 \
+    --max_instances 1 \
     --peak-threshold 0.2 \
     --verbosity json
 
