@@ -2,3 +2,7 @@
 	path = submodules/aeon_mecha
 	url = https://github.com/SainsburyWellcomeCentre/aeon_mecha.git
 	branch = foragingOVC
+[submodule "submodules/foragingABC_analysis"]
+	path = submodules/foragingABC_analysis
+	url = https://github.com/SainsburyWellcomeCentre/foragingABC_analysis.git
+	branch = main
