@@ -5,6 +5,7 @@ requires-python = ">=3.11,<3.13"
 description = "Analysis pipeline for OVC experiments in AEON arena"
 dependencies = [
     "aeon-mecha[spike_sorting]",
+    "kilosort==4.1.7",  # pinned sorter version; installed natively so SI doesn't pull a container
     "swc-aeon-ovc",
     "datajoint",
     "ipykernel",
@@ -16,6 +17,7 @@ dependencies = [
     "seaborn",
     "pyyaml",
     "tqdm",
+    "pyarrow==19.0.1",
 ]
 
 [build-system]

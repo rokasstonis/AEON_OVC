@@ -1,0 +1,318 @@
+============================================================
+  Step 1: Register Experiment
+============================================================
+
+--- 1/8: Register experiment, subject, and directories ---
+[2026-10-20 09:11:30] DataJoint 2.3.4 connected to rstonis@aeondj:3306
+Subject: BAA-1106718
+Location: AEONX1
+Experiment: ProjectAeonOVC-2026-04-02_001 (start: 2026-04-02 08:32:38)
+Directory: raw       -> aeon/data/raw/AEON3/experiment_beh/aeon-ovc-beh-2026-04-02
+Directory: raw-ephys -> aeon/data/raw/AEONX1/ProjectAeonOVC/aeon-ovc-2026-04-02
+Experiment.Subject: BAA-1106718
+
+--- 2/8: Ensure ProbeType exists ---
+ProbeType already exists: neuropixels2.0-multishank (5120 electrodes)
+
+--- 3/8: Create electrode configuration ---
+ElectrodeConfig already exists: /ceph/branco/Rokas/Ephys/Channel_maps/020426/M01_ProbeA_4Shanks_1500_to_2200um (384 electrodes)
+
+--- 4/8: Create probe assignments JSON ---
+probe_assignments.json already exists (local): /ceph/branco/Rokas/Ephys/probe_assignments/aeon-ovc-2026-04-02/probe_assignments.json
+
+--- 5/8: Register epochs ---
+Ingesting acquisition (behavior) epochs...
+[2026-10-20 09:11:32] Insert 0 new Epoch(s)
+acquisition.Epoch: 1 behavior epoch(s)
+Ingesting ephys epochs...
+EphysEpoch: 1 ephys epoch(s)
+Populating EphysEpochConfig...
+EphysEpochConfig:   0%|          | 0/1 [00:00<?, ?it/s][2026-10-20 09:11:34] Skipping ProbeB: no probe configuration found (disabled/dummy)
+[2026-10-20 09:11:35] Reading probe assignments from override: /ceph/branco/Rokas/Ephys/probe_assignments/aeon-ovc-2026-04-02/probe_assignments.json
+[2026-10-20 09:11:35] Created ProbeInsertion: experiment=ProjectAeonOVC-2026-04-02_001, subject=BAA-1106718, insertion_number=1, probe=22420004142
+EphysEpochConfig: 100%|██████████| 1/1 [00:01<00:00,  1.11s/it]EphysEpochConfig: 100%|██████████| 1/1 [00:01<00:00,  1.11s/it]
+EphysEpochConfig: 1 row(s)
+
+--- 6/8: Ingest sync models ---
+Ingesting sync models (ONIX → HARP)...
+[2026-10-20 09:11:35] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 09:31:12
+[2026-10-20 09:11:35] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 09:59:59
+[2026-10-20 09:11:35] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 10:59:59
+[2026-10-20 09:11:36] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 11:59:59
+[2026-10-20 09:11:36] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 12:59:59
+[2026-10-20 09:11:36] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 13:59:59
+[2026-10-20 09:11:36] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 14:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 15:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 16:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 17:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 18:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 19:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 20:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 21:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 22:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-02 23:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 00:59:59
+[2026-10-20 09:11:37] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 01:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 02:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 03:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 04:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 05:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 06:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 07:59:59
+[2026-10-20 09:11:38] Inserted EphysSyncModel: ProjectAeonOVC-2026-04-02_001 epoch=2026-04-02 09:31:12 sync_start=2026-04-03 08:59:59
+EphysSyncModel entries: 25
+
+--- 7/8: Ingest ephys chunks ---
+Ingesting ephys chunks...
+[2026-10-20 09:11:39] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 09:31:11.154970
+[2026-10-20 09:11:40] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 09:37:11.159432
+[2026-10-20 09:11:41] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:31:11.205079
+[2026-10-20 09:11:41] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:31:11.670465
+[2026-10-20 09:11:42] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:37:11.675879
+[2026-10-20 09:11:43] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:43:11.681298
+[2026-10-20 09:11:44] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:49:11.686718
+[2026-10-20 09:11:45] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:55:11.692131
+[2026-10-20 09:11:46] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:01:11.697534
+[2026-10-20 09:11:47] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:07:11.702830
+[2026-10-20 09:11:48] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:13:11.708216
+[2026-10-20 09:11:49] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:19:11.713634
+[2026-10-20 09:11:50] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:25:11.719016
+[2026-10-20 09:11:50] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:37:11.210367
+[2026-10-20 09:11:51] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:31:11.724417
+[2026-10-20 09:11:52] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:37:11.729827
+[2026-10-20 09:11:53] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:43:11.735236
+[2026-10-20 09:11:54] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:49:11.740647
+[2026-10-20 09:11:55] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 20:55:11.746059
+[2026-10-20 09:11:56] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:01:11.751454
+[2026-10-20 09:11:56] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:07:11.756865
+[2026-10-20 09:11:57] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:13:11.762275
+[2026-10-20 09:11:58] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:19:11.767681
+[2026-10-20 09:11:59] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:25:11.773091
+[2026-10-20 09:12:00] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:43:11.215640
+[2026-10-20 09:12:01] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:31:11.778501
+[2026-10-20 09:12:02] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:37:11.783894
+[2026-10-20 09:12:02] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:43:11.789282
+[2026-10-20 09:12:04] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:49:11.794682
+[2026-10-20 09:12:05] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 21:55:11.800081
+[2026-10-20 09:12:05] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:01:11.805473
+[2026-10-20 09:12:06] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:07:11.810832
+[2026-10-20 09:12:07] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:13:11.816173
+[2026-10-20 09:12:08] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:19:11.821575
+[2026-10-20 09:12:09] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:25:11.826971
+[2026-10-20 09:12:10] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:49:11.220842
+[2026-10-20 09:12:11] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:31:11.832364
+[2026-10-20 09:12:11] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:37:11.837764
+[2026-10-20 09:12:12] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:43:11.843169
+[2026-10-20 09:12:15] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:49:11.848567
+[2026-10-20 09:12:16] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 22:55:11.853895
+[2026-10-20 09:12:17] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:01:11.859220
+[2026-10-20 09:12:18] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:07:11.864616
+[2026-10-20 09:12:18] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:13:11.870009
+[2026-10-20 09:12:19] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:19:11.875397
+[2026-10-20 09:12:20] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:25:11.880792
+[2026-10-20 09:12:21] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:55:11.225932
+[2026-10-20 09:12:22] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:31:11.886196
+[2026-10-20 09:12:23] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:37:11.891592
+[2026-10-20 09:12:24] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:43:11.896989
+[2026-10-20 09:12:25] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:49:11.902395
+[2026-10-20 09:12:26] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 23:55:11.907792
+[2026-10-20 09:12:26] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:01:11.913194
+[2026-10-20 09:12:27] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:07:11.918586
+[2026-10-20 09:12:28] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:13:11.923983
+[2026-10-20 09:12:29] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:19:11.929380
+[2026-10-20 09:12:30] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:25:11.934718
+[2026-10-20 09:12:31] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:01:11.231274
+[2026-10-20 09:12:32] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:31:11.940094
+[2026-10-20 09:12:33] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:37:11.945431
+[2026-10-20 09:12:34] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:43:11.950796
+[2026-10-20 09:12:35] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:49:11.956177
+[2026-10-20 09:12:36] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 00:55:11.961565
+[2026-10-20 09:12:37] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:01:11.966955
+[2026-10-20 09:12:38] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:07:11.972346
+[2026-10-20 09:12:39] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:13:11.977743
+[2026-10-20 09:12:40] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:19:11.983137
+[2026-10-20 09:12:41] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:25:11.988528
+[2026-10-20 09:12:42] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:07:11.236543
+[2026-10-20 09:12:42] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:31:11.993913
+[2026-10-20 09:12:43] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:37:11.999305
+[2026-10-20 09:12:44] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:43:12.004698
+[2026-10-20 09:12:45] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:49:12.010089
+[2026-10-20 09:12:46] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 01:55:12.015470
+[2026-10-20 09:12:48] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:01:12.020854
+[2026-10-20 09:12:49] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:07:12.026249
+[2026-10-20 09:12:50] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:13:12.031642
+[2026-10-20 09:12:51] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:19:12.037033
+[2026-10-20 09:12:52] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:25:12.042426
+[2026-10-20 09:12:53] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:13:11.241605
+[2026-10-20 09:12:54] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:31:12.047809
+[2026-10-20 09:12:56] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:37:12.053196
+[2026-10-20 09:12:56] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:43:12.058586
+[2026-10-20 09:12:57] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:49:12.063971
+[2026-10-20 09:12:58] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 02:55:12.069340
+[2026-10-20 09:12:59] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:01:12.074655
+[2026-10-20 09:13:01] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:07:12.079985
+[2026-10-20 09:13:02] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:13:12.085355
+[2026-10-20 09:13:03] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:19:12.090725
+[2026-10-20 09:13:04] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:25:12.096108
+[2026-10-20 09:13:05] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:19:11.246634
+[2026-10-20 09:13:06] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:31:12.101499
+[2026-10-20 09:13:07] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:37:12.106894
+[2026-10-20 09:13:08] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:43:12.112275
+[2026-10-20 09:13:08] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:49:12.117637
+[2026-10-20 09:13:09] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 03:55:12.123003
+[2026-10-20 09:13:10] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:01:12.128380
+[2026-10-20 09:13:11] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:07:12.133738
+[2026-10-20 09:13:12] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:13:12.139091
+[2026-10-20 09:13:13] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:19:12.144466
+[2026-10-20 09:13:14] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:25:12.149827
+[2026-10-20 09:13:15] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:25:11.251644
+[2026-10-20 09:13:15] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:31:12.155165
+[2026-10-20 09:13:16] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:37:12.160513
+[2026-10-20 09:13:17] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:43:12.165889
+[2026-10-20 09:13:18] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:49:12.171233
+[2026-10-20 09:13:19] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 04:55:12.176567
+[2026-10-20 09:13:20] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:01:12.181919
+[2026-10-20 09:13:21] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:07:12.187300
+[2026-10-20 09:13:22] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:13:12.192676
+[2026-10-20 09:13:22] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:19:12.198045
+[2026-10-20 09:13:23] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:25:12.203418
+[2026-10-20 09:13:24] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 09:43:11.164387
+[2026-10-20 09:13:25] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:31:11.256670
+[2026-10-20 09:13:26] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:31:12.208793
+[2026-10-20 09:13:28] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:37:12.214164
+[2026-10-20 09:13:29] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:43:12.219535
+[2026-10-20 09:13:30] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:49:12.224911
+[2026-10-20 09:13:31] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 05:55:12.230285
+[2026-10-20 09:13:32] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:01:12.235662
+[2026-10-20 09:13:33] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:07:12.241043
+[2026-10-20 09:13:35] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:13:12.246419
+[2026-10-20 09:13:36] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:19:12.251793
+[2026-10-20 09:13:37] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:25:12.257157
+[2026-10-20 09:13:38] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:37:11.261687
+[2026-10-20 09:13:39] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:31:12.262451
+[2026-10-20 09:13:40] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:37:12.267753
+[2026-10-20 09:13:41] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:43:12.273079
+[2026-10-20 09:13:43] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:49:12.278422
+[2026-10-20 09:13:43] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 06:55:12.283803
+[2026-10-20 09:13:44] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:01:12.289126
+[2026-10-20 09:13:45] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:07:12.294515
+[2026-10-20 09:13:46] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:13:12.299909
+[2026-10-20 09:13:47] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:19:12.305311
+[2026-10-20 09:13:48] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:25:12.310719
+[2026-10-20 09:13:50] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:43:11.266845
+[2026-10-20 09:13:51] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:31:12.316111
+[2026-10-20 09:13:51] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:37:12.321475
+[2026-10-20 09:13:53] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:43:12.326817
+[2026-10-20 09:13:54] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:49:12.332140
+[2026-10-20 09:13:55] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 07:55:12.337482
+[2026-10-20 09:13:55] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:01:12.342897
+[2026-10-20 09:13:56] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:07:12.348261
+[2026-10-20 09:13:57] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:13:12.353638
+[2026-10-20 09:13:58] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:19:12.359018
+[2026-10-20 09:13:59] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:25:12.364369
+[2026-10-20 09:14:00] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:49:11.272175
+[2026-10-20 09:14:01] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:31:12.369755
+[2026-10-20 09:14:02] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:37:12.375084
+[2026-10-20 09:14:02] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:43:12.380238
+[2026-10-20 09:14:04] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:49:12.385461
+[2026-10-20 09:14:05] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 08:55:12.390778
+[2026-10-20 09:14:07] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 09:01:12.396062
+[2026-10-20 09:14:07] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 09:07:12.401282
+[2026-10-20 09:14:08] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-03 09:13:12.406430
+[2026-10-20 09:14:09] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 11:55:11.277557
+[2026-10-20 09:14:10] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:01:11.282876
+[2026-10-20 09:14:10] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:07:11.288206
+[2026-10-20 09:14:11] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:13:11.293558
+[2026-10-20 09:14:12] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:19:11.298710
+[2026-10-20 09:14:13] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:25:11.303890
+[2026-10-20 09:14:14] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 09:49:11.169354
+[2026-10-20 09:14:15] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:31:11.309070
+[2026-10-20 09:14:16] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:37:11.314190
+[2026-10-20 09:14:16] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:43:11.319255
+[2026-10-20 09:14:17] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:49:11.324266
+[2026-10-20 09:14:18] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 12:55:11.329330
+[2026-10-20 09:14:19] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:01:11.334603
+[2026-10-20 09:14:20] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:07:11.339840
+[2026-10-20 09:14:21] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:13:11.345076
+[2026-10-20 09:14:22] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:19:11.350268
+[2026-10-20 09:14:23] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:25:11.355376
+[2026-10-20 09:14:24] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 09:55:11.174397
+[2026-10-20 09:14:25] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:31:11.360487
+[2026-10-20 09:14:26] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:37:11.365609
+[2026-10-20 09:14:27] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:43:11.370775
+[2026-10-20 09:14:28] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:49:11.375870
+[2026-10-20 09:14:30] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 13:55:11.381084
+[2026-10-20 09:14:31] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:01:11.386253
+[2026-10-20 09:14:32] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:07:11.391336
+[2026-10-20 09:14:33] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:13:11.396419
+[2026-10-20 09:14:34] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:19:11.401496
+[2026-10-20 09:14:35] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:25:11.406566
+[2026-10-20 09:14:35] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:01:11.179506
+[2026-10-20 09:14:36] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:31:11.411628
+[2026-10-20 09:14:38] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:37:11.416623
+[2026-10-20 09:14:39] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:43:11.421704
+[2026-10-20 09:14:40] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:49:11.426681
+[2026-10-20 09:14:40] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 14:55:11.431768
+[2026-10-20 09:14:41] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:01:11.436748
+[2026-10-20 09:14:43] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:07:11.441842
+[2026-10-20 09:14:44] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:13:11.446940
+[2026-10-20 09:14:45] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:19:11.452087
+[2026-10-20 09:14:46] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:25:11.457259
+[2026-10-20 09:14:47] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:07:11.184555
+[2026-10-20 09:14:49] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:31:11.462395
+[2026-10-20 09:14:50] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:37:11.467533
+[2026-10-20 09:14:50] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:43:11.472642
+[2026-10-20 09:14:51] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:49:11.477865
+[2026-10-20 09:14:52] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 15:55:11.482949
+[2026-10-20 09:14:53] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:01:11.488170
+[2026-10-20 09:14:54] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:07:11.493293
+[2026-10-20 09:14:55] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:13:11.498179
+[2026-10-20 09:14:56] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:19:11.503134
+[2026-10-20 09:14:57] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:25:11.508235
+[2026-10-20 09:14:57] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:13:11.189601
+[2026-10-20 09:14:58] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:31:11.513319
+[2026-10-20 09:14:59] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:37:11.518482
+[2026-10-20 09:15:00] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:43:11.523569
+[2026-10-20 09:15:01] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:49:11.528685
+[2026-10-20 09:15:02] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 16:55:11.533828
+[2026-10-20 09:15:03] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:01:11.538996
+[2026-10-20 09:15:04] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:07:11.544141
+[2026-10-20 09:15:04] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:13:11.549197
+[2026-10-20 09:15:05] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:19:11.554187
+[2026-10-20 09:15:06] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:25:11.559235
+[2026-10-20 09:15:07] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:19:11.194741
+[2026-10-20 09:15:08] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:31:11.564395
+[2026-10-20 09:15:09] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:37:11.569648
+[2026-10-20 09:15:10] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:43:11.574877
+[2026-10-20 09:15:11] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:49:11.579983
+[2026-10-20 09:15:12] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 17:55:11.585153
+[2026-10-20 09:15:14] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:01:11.590211
+[2026-10-20 09:15:15] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:07:11.595509
+[2026-10-20 09:15:16] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:13:11.600789
+[2026-10-20 09:15:17] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:19:11.605919
+[2026-10-20 09:15:18] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:25:11.611157
+[2026-10-20 09:15:19] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 10:25:11.199927
+[2026-10-20 09:15:20] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:31:11.616440
+[2026-10-20 09:15:21] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:37:11.621748
+[2026-10-20 09:15:22] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:43:11.627131
+[2026-10-20 09:15:22] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:49:11.632524
+[2026-10-20 09:15:24] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 18:55:11.637927
+[2026-10-20 09:15:25] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:01:11.643383
+[2026-10-20 09:15:25] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:07:11.648798
+[2026-10-20 09:15:26] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:13:11.654214
+[2026-10-20 09:15:27] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:19:11.659631
+[2026-10-20 09:15:28] Inserted EphysChunk: ProjectAeonOVC-2026-04-02_001 subject=BAA-1106718 chunk_start=2026-04-02 19:25:11.665050
+[2026-10-20 09:15:28][WARNING]: Skipping 2026-04-02T083238Z/NeuropixelsV2/NeuropixelsV2_ProbeB_AmplifierData_0.bin: no subject-probe mapping for ProbeB in epoch 2026-04-02 09:31:12. Register via probe_assignments.json or manual ProbeInsertion insert, then run EphysEpochConfig.populate().
+EphysChunk entries: 238
+Time range: 2026-04-02 09:31:11.154970 to 2026-04-03 09:14:41.596680
+
+--- 8/8: Verify registration ---
+Experiment: ProjectAeonOVC-2026-04-02_001
+Epochs: 1 behavior, 1 ephys (1 configured)
+ProbeInsertions: 1
+  insertion 1: subject=BAA-1106718, probe=22420004142 (neuropixels2.0-multishank)
+  -> 238 chunks: 2026-04-02 09:31:11.154970 to 2026-04-03 09:14:41.596680
+
+============================================================
+  Step 1 complete. Ready for block definition (Step 2).
+============================================================
