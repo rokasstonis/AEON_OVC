@@ -7,6 +7,10 @@ poorly under sleap-nn, so apply() swaps that name for run_inference_legacy,
 which has the same signature and runs `sleap-track` from the sleap_legacy
 conda env with the flags from scripts/hpc/submit_sleap.sh.
 
+apply() also redirects the .slp/log output folder to
+processed/sleap_tracking/aeon_top_v1/..., because new folders can't be created
+directly under sleap_tracking/.
+
 Everything else (pre-checks, .slp -> movement xarray, HARP alignment,
 post-checks, keep_slp) is foragingABC's unchanged.
 
@@ -16,6 +20,7 @@ Usage (before any populate call):
 """
 
 import os
+import re
 import shlex
 import subprocess
 import time
@@ -24,6 +29,9 @@ from pathlib import Path
 CONDA_BASE = os.environ.get("SLEAP_LEGACY_CONDA_BASE", "/ceph/apps/ubuntu-20/packages/miniconda/23.10.0")
 CONDA_ENV = os.environ.get("SLEAP_LEGACY_CONDA_ENV", "sleap_legacy")
 DEFAULT_BATCH_SIZE = 8
+# Folder under processed/sleap_tracking/ we can write to (the DB still records
+# sleap_method="ovc_top_260921_legacy"); files land in a separate OVC subfolder.
+OUTPUT_METHOD_DIR = os.environ.get("SLEAP_OUTPUT_METHOD_DIR", "aeon_top_v1")
 
 # Flags from scripts/hpc/submit_sleap.sh (single animal)
 TRACK_FLAGS = [
@@ -110,9 +118,27 @@ def run_inference_legacy(
     print_ok(f"Inference complete  ({size_mb:.1f} MB, {elapsed_min:.1f} min)  →  {output_slp.name}\n")
 
 
+def _redirect_output(run_sleap_pipeline):
+    """Wrap run_sleap_pipeline so .slp/log files go under OUTPUT_METHOD_DIR.
+
+    SleapRawTracking.make builds output_stem as
+    .../processed/sleap_tracking/<sleap_method>/<raw path>, and we can't create
+    new folders directly under sleap_tracking/.
+    """
+    def wrapper(*args, output_stem, **kwargs):
+        output_stem = re.sub(r"/sleap_tracking/[^/]+/", f"/sleap_tracking/{OUTPUT_METHOD_DIR}/", str(output_stem))
+        return run_sleap_pipeline(*args, output_stem=output_stem, **kwargs)
+
+    wrapper._sleap_legacy_wrapped = True
+    return wrapper
+
+
 def apply() -> None:
-    """Make SleapRawTracking use legacy inference. Idempotent."""
+    """Make SleapRawTracking use legacy inference and a writable output folder. Idempotent."""
     from foragingabc.dj_pipeline.utils.sleap import pipeline
 
     pipeline.run_inference = run_inference_legacy
+    if not getattr(pipeline.run_sleap_pipeline, "_sleap_legacy_wrapped", False):
+        pipeline.run_sleap_pipeline = _redirect_output(pipeline.run_sleap_pipeline)
     print(f"sleap_legacy: inference via `sleap-track` from {CONDA_BASE}/envs/{CONDA_ENV}", flush=True)
+    print(f"sleap_legacy: .slp output under processed/sleap_tracking/{OUTPUT_METHOD_DIR}/", flush=True)
