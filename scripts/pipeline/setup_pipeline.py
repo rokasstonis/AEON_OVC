@@ -448,23 +448,40 @@ def step_populate_streams(dry_run=False):
         print_info("Would call: acquisition.LightEvents/MessageLog/EnvironmentState.populate()")
         return True
 
-    import datajoint as dj
     from aeon.dj_pipeline import acquisition, streams
 
     restriction = {"experiment_name": EXPERIMENT_NAME}
-    stream_tables = [
-        (name, cls) for name, cls in vars(streams).items()
-        if isinstance(cls, type) and issubclass(cls, dj.Imported)
-    ]
-    env_tables = [
-        (f"acquisition.{cls.__name__}", cls)
-        for cls in (acquisition.LightEvents, acquisition.MessageLog, acquisition.EnvironmentState)
+
+    # Explicit table list, as in foragingABC scripts/enter_experiment_data.py.
+    # Errors are suppressed (logged, not raised) because some device/stream
+    # combinations don't exist, e.g. CameraPosition raises for cameras without
+    # blob tracking (CameraEast, ...).
+    tables = [
+        acquisition.EnvironmentState,
+        acquisition.MessageLog,
+        acquisition.LightEvents,
+        streams.ActivityWeightScaleWeightFiltered,
+        streams.ActivityWeightScaleWeightSubject,
+        streams.ActivityWeightScaleWeightRaw,
+        streams.ActivityWeightScaleBaselineEvent,
+        streams.CameraVideo,
+        streams.CameraPosition,
+        streams.EnvironmentLightEvents,
+        streams.SoundCardSoundEvents,
+        streams.FeederDeliverPellet,
+        streams.FeederBeamBreak,
+        streams.FeederRetriedDelivery,
+        streams.FeederEncoder,
     ]
 
-    for name, table_cls in sorted(stream_tables) + env_tables:
+    for table_cls in tables:
+        name = table_cls.__name__
         print_info(f"Populating {name}...")
-        table_cls.populate(restriction, display_progress=True, suppress_errors=SUPPRESS_ERRORS)
-        print_ok(f"{name}: {len(table_cls & restriction)} rows")
+        result = table_cls.populate(restriction, display_progress=True, suppress_errors=True)
+        errors = result.get("error_list", []) if isinstance(result, dict) else []
+        print_ok(f"{name}: {len(table_cls & restriction)} rows, {len(errors)} errors")
+        for err in errors[:3]:
+            print_info(f"  {str(err)[:200]}")
 
     # Required for SLEAP tracking (foragingABC pose.SleapRawTracking -> streams.CameraVideo)
     n_chunks = len(acquisition.Chunk & restriction)
