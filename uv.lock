@@ -4205,7 +4205,7 @@ wheels = [
 [[package]]
 name = "swc-aeon-ovc"
 version = "0.0.1"
-source = { git = "https://github.com/SainsburyWellcomeCentre/aeon_exp_OVC.git?branch=main#50ab39f276d93651314727e1fd361ba87f71baf3" }
+source = { git = "https://github.com/SainsburyWellcomeCentre/aeon_exp_OVC.git?branch=main#30c0cb99a500623f4549c2247d246a024fc3f00f" }
 dependencies = [
     { name = "dotmap" },
     { name = "gitpython" },
