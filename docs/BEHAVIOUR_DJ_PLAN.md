@@ -7,15 +7,20 @@
 
 **Done**
 - Fixed `Device` → `DeviceName` in `scripts/pipeline/setup_pipeline.py` and `validate_pipeline.py` (aeon_mecha ≥0.4 renamed the table).
-- Ran `setup_pipeline.py --step 2`, `--step 3` and `--step 4` only. These are once per database. **Never run the full script or `--step 5`**: step 5 creates an unwanted `ovc01-aeon3` experiment.
+- Ran `setup_pipeline.py --step 2`, `--step 3` and `--step 4` only. These are once per database. Don't run the full script: steps 1–4 don't need re-running. Since 2026-10-22, `--step 5` is safe for sessions that step01 already registered (it only adds the DevicesSchema link).
 - Added `@data_reader sound_events` (Harp register 32, column `sound_index`) to `SoundCard` in the rig repo `aeon_exp_OVC`, pushed as commit `50ab39f`. Bumped it in `uv.lock`.
 - Fixed aeon_mecha `load_metadata.get_device_class_from_field` to discover optional rig fields (`SoundCard | None`). Committed on aeon_mecha branch `my-changes` (`aa0d5e51`) and pushed. Worth an upstream PR.
 - Regenerated `aeon_mecha/aeon/dj_pipeline/streams.py` (`SoundCardSoundEvents` and the others), committed as `148e3d67` and pushed.
 - Main repo: committed the script fixes, uv.lock and the submodule pointer. Added the foragingABC_analysis submodule.
 - Caveat: `.gitmodules` says aeon_mecha tracks branch `foragingOVC`, but the commits are on `my-changes`. Don't run `git submodule update --remote` until that is reconciled.
 
+- (2026-10-22) Instead of a separate `step01b_behaviour_ingest.py`, `setup_pipeline.py` steps 5–9 are now the per-session behaviour ingest:
+  - Step 5 only links DevicesSchema if step01 already registered the experiment. Before this, `create_experiment` mis-parsed dated names like `ProjectAeonOVC-2026-09-14_001` as `<exp>-<machine>` and looked for `raw/14_001/...`.
+  - Step 8 is restricted to `EXPERIMENT_NAME`.
+  - The new step 9 populates every `streams.*` Imported table plus `acquisition.LightEvents`, `MessageLog` and `EnvironmentState`.
+
 **Next up**
-1. Per-session behaviour ingestion: insert the DevicesSchema link, then `Chunk.ingest_chunks`, `EpochConfig.populate` and `streams.CameraVideo.populate` (see Step 1). Script `step01b_behaviour_ingest.py` is not written yet.
+1. Per-session behaviour ingestion. Set `EXPERIMENT_NAME` and `DATA_DIR_RELATIVE` in `setup_pipeline.py` to the session, then run `--step 5`, `7`, `8` and `9` after the ephys step01. Steps 2–4 are once per database and already done. Done for `ProjectAeonOVC-2026-09-14_001` once step 9 passes.
 2. Install foragingABC as a uv path dependency (see Step 2). Then run `import foragingabc.dj_pipeline.pose` as a smoke test.
 3. Write `AEON_OVC_beh/dj_integration/compat.py`, which makes foragingABC call the legacy `sleap-track`. Insert the `SleapTrackingMethod` and `CameraView` rows, then test one chunk on a GPU node.
 

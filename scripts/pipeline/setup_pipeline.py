@@ -280,14 +280,30 @@ def step_register_experiment(dry_run=False):
     )
     print_ok("DevicesSchema registered")
 
-    print_info(f"Creating experiment: {EXPERIMENT_NAME}")
-    create_experiment(
-        experiment_name=EXPERIMENT_NAME,
-        experiment_type="foraging",
-        devices_schema_name=DEVICES_SCHEMA,
-        arena_name=ARENA_NAME,
-    )
-    print_ok(f"Experiment created: {EXPERIMENT_NAME}")
+    if acquisition.Experiment & {"experiment_name": EXPERIMENT_NAME}:
+        # Already registered by the ephys runbook (step01_register_experiment.py),
+        # which does not insert the DevicesSchema link — add only that.
+        print_info(f"Experiment already exists: {EXPERIMENT_NAME} — linking DevicesSchema only")
+        acquisition.Experiment.DevicesSchema.insert1(
+            {"experiment_name": EXPERIMENT_NAME, "devices_schema_name": DEVICES_SCHEMA},
+            skip_duplicates=True,
+        )
+    else:
+        from aeon.dj_pipeline.utils.paths import get_repository_path
+
+        # Pass raw_dir/location explicitly: create_experiment otherwise parses
+        # "<exp>-<machine>" from the name, which breaks on dated names
+        # like "ProjectAeonOVC-2026-09-14_001".
+        print_info(f"Creating experiment: {EXPERIMENT_NAME}")
+        create_experiment(
+            experiment_name=EXPERIMENT_NAME,
+            experiment_type="foraging",
+            devices_schema_name=DEVICES_SCHEMA,
+            arena_name=ARENA_NAME,
+            location="AEON3",
+            raw_dir=get_repository_path("ceph_aeon") / DATA_DIR_RELATIVE,
+        )
+        print_ok(f"Experiment created: {EXPERIMENT_NAME}")
 
     exp = (acquisition.Experiment & {"experiment_name": EXPERIMENT_NAME}).fetch1()
     print_ok(f"  start_time: {exp['experiment_start_time']}")
@@ -376,7 +392,9 @@ def step_populate_epoch_config(dry_run=False):
     from aeon.dj_pipeline import acquisition
 
     print_info(f"Running EpochConfig.populate(suppress_errors={SUPPRESS_ERRORS})...")
-    acquisition.EpochConfig.populate(display_progress=True, suppress_errors=SUPPRESS_ERRORS)
+    acquisition.EpochConfig.populate(
+        {"experiment_name": EXPERIMENT_NAME}, display_progress=True, suppress_errors=SUPPRESS_ERRORS
+    )
 
     import datajoint as dj
     schema_name = acquisition.EpochConfig.database
@@ -420,6 +438,46 @@ def step_populate_epoch_config(dry_run=False):
 
 
 # ---------------------------------------------------------------------------
+# Step 9: Populate stream tables
+# ---------------------------------------------------------------------------
+def step_populate_streams(dry_run=False):
+    print_header(9, "Populate Stream Tables (CameraVideo, SoundCard, Environment, ...)")
+
+    if dry_run:
+        print_info(f"Would call: .populate() on all Imported streams.* tables for '{EXPERIMENT_NAME}'")
+        print_info("Would call: acquisition.LightEvents/MessageLog/EnvironmentState.populate()")
+        return True
+
+    import datajoint as dj
+    from aeon.dj_pipeline import acquisition, streams
+
+    restriction = {"experiment_name": EXPERIMENT_NAME}
+    stream_tables = [
+        (name, cls) for name, cls in vars(streams).items()
+        if isinstance(cls, type) and issubclass(cls, dj.Imported)
+    ]
+    env_tables = [
+        (f"acquisition.{cls.__name__}", cls)
+        for cls in (acquisition.LightEvents, acquisition.MessageLog, acquisition.EnvironmentState)
+    ]
+
+    for name, table_cls in sorted(stream_tables) + env_tables:
+        print_info(f"Populating {name}...")
+        table_cls.populate(restriction, display_progress=True, suppress_errors=SUPPRESS_ERRORS)
+        print_ok(f"{name}: {len(table_cls & restriction)} rows")
+
+    # Required for SLEAP tracking (foragingABC pose.SleapRawTracking -> streams.CameraVideo)
+    n_chunks = len(acquisition.Chunk & restriction)
+    n_top = len(streams.CameraVideo & restriction & {"device_name": "CameraTop"})
+    if n_top == 0:
+        print_fail("streams.CameraVideo has no CameraTop rows for this experiment")
+        return False
+    print_ok(f"CameraTop videos: {n_top} / {n_chunks} chunks")
+
+    return True
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 STEPS = [
@@ -431,6 +489,7 @@ STEPS = [
     ("ingest_epochs", step_ingest_epochs),
     ("ingest_chunks", step_ingest_chunks),
     ("populate_epoch_config", step_populate_epoch_config),
+    ("populate_streams", step_populate_streams),
 ]
 
 
@@ -445,16 +504,20 @@ Steps:
   3  populate_catalog     Fill catalog from Pydantic Experiment class
   4  create_stream_tables Create ExperimentDevice & DeviceDataStream tables
   5  register_experiment  Insert Experiment, Directory, DevicesSchema
+                          (links DevicesSchema only if already registered)
   6  ingest_epochs        Detect and ingest epochs from filesystem
   7  ingest_chunks        Detect and ingest chunks from filesystem
   8  populate_epoch_config Run EpochConfig.populate() for metadata
+  9  populate_streams     Populate streams.* (CameraVideo, ...) + Environment tables
+
+Steps 2-4 run once per database; steps 5-9 run once per session.
         """,
     )
     parser.add_argument(
         "--step",
         type=int,
         choices=range(1, len(STEPS) + 1),
-        help="Run only the specified step (1-8)",
+        help=f"Run only the specified step (1-{len(STEPS)})",
     )
     parser.add_argument(
         "--dry-run",
