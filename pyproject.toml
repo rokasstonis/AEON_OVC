@@ -18,6 +18,13 @@ dependencies = [
     "pyyaml",
     "tqdm",
     "pyarrow==19.0.1",
+    # SLEAP pose pipeline (foragingabc.dj_pipeline.pose) and its deps
+    "foragingabc-analysis",
+    "movement",
+    "opencv-python>=4.8",
+    "xarray",
+    "netCDF4",
+    "h5netcdf>=1.8.1",
 ]
 
 [build-system]
@@ -33,10 +40,20 @@ packages = ["src"]
 # in GitHub tarball download). This overrides the >=0.2.0 constraint from
 # swc-aeon-ovc. Upstream fix: add fallback_version to aeon_api's
 # setuptools-scm config. See: https://github.com/SainsburyWellcomeCentre/aeon_api
-override-dependencies = ["swc-aeon>=0.1.0"]
+#
+# swc-aeon-rigs-foragingabc is a private (ssh) rig package that foragingABC
+# needs only for abc_task/feeder, which we don't import; never install it.
+# cv2.typing (used by swc.aeon.io.video) was added in OpenCV 4.8.
+override-dependencies = [
+    "swc-aeon>=0.1.0",
+    "swc-aeon-rigs-foragingabc; python_version < '3'",
+    "aeon-mecha[spike_sorting] @ file:///${PROJECT_ROOT}/submodules/aeon_mecha",
+    "opencv-python>=4.8",
+]
 
 [tool.uv.sources]
 aeon-mecha = { path = "./submodules/aeon_mecha", editable = true }
+foragingabc-analysis = { path = "./submodules/foragingABC_analysis", editable = true }
 swc-aeon-rigs = { git = "https://github.com/SainsburyWellcomeCentre/aeon_swc_rigs.git", branch = "main" }
 swc-aeon-ovc = { git = "https://github.com/SainsburyWellcomeCentre/aeon_exp_OVC.git", branch = "main" }
 datajoint = { git = "https://github.com/datajoint/datajoint-python.git", branch = "master" }
