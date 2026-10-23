@@ -13,3 +13,6 @@ __pycache__/
 
 #slurm output
 /slurm_output/
+
+#sleap run logs
+/logs/
