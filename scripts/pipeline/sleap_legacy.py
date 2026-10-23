@@ -81,6 +81,7 @@ def run_inference_legacy(
     # Write to a temp file and rename, so an interrupted run never leaves a
     # partial .slp that run_sleap_pipeline would later "reuse".
     tmp_slp = output_slp.with_name(output_slp.stem + ".partial.slp")
+    tmp_slp.unlink(missing_ok=True)  # left behind by a killed task
     track_cmd = [
         "sleap-track", str(video_path),
         "--model", str(centroid_model),
