@@ -168,8 +168,13 @@ All tables use the foragingABC `abc_task.StateTransitions` pattern: `get_stream_
   - Cross-check each episode against MessageLog "Dark"/"Light" annotations.
 - **`LightPhase`** (Computed, optional): day/dusk-dawn/night intervals from the same stream, as a covariate.
 - **`Speed`** (Computed, `-> pose.PositionCM`): store the output of `compute_velocity` on `get_extended_position` (speed in cm/s plus velocity x/y) as xarray. That avoids recomputing it for every PETH.
+- **`EarHeading`** (Computed, `-> pose.PoseQC`), implemented 2026-10-24 in `src/dj_pipeline/ovc_behav.py` and `heading.py`:
+  - The heading is perpendicular to the left_ear → right_ear axis. Its sign is checked against nose, then head, then spine1, which catches swapped ear labels.
+  - Confidence is the ear separation divided by its median.
+  - It uses the same QC (`pose_qc.quality_control_pose`) and circular Savitzky–Golay smoothing as foragingABC's `HeadingDirection`, with the same output variables.
+  - This is the heading used for OVC. foragingABC's `HeadingDirection` is kept for comparison.
 - **`EscapeTrial`** (Computed), with part `Trial` keyed `stim_time`:
-  - `key_source`: `Chunk & SoundEvents`, requiring `PositionCM`, `HeadingDirection` and `Speed` to be populated.
+  - `key_source`: `Chunk & SoundEvents`, requiring `PositionCM`, `EarHeading` and `Speed` to be populated.
   - Per trigger: `sound_index`, `light_condition` (dark/day/night from `DarkPeriods` and `LightPhase`), `pre_speed`, `peak_speed`, `escape_latency_s`, `reached_shelter`, `heading_to_shelter_deg`, and a −5 to +15 s `trajectory` xarray.
   - Shelter and object fields come from `ArenaLayout` (below). Until that table is ingested, `reached_shelter`, `heading_to_shelter_deg` and `object_condition` stay NULL.
 - **`ArenaLayout`** (Manual, **placeholder with `# TODO`**). The shelter and the object are moved during a session and are registered separately, so this table records time-varying layout changes:

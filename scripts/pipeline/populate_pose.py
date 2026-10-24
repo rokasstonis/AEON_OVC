@@ -5,6 +5,7 @@ Run from the repo root (so datajoint.json is picked up) on a GPU node:
 
     uv run python scripts/pipeline/populate_pose.py ProjectAeonOVC-2026-09-14_001 --max-calls 1
     uv run python scripts/pipeline/populate_pose.py ProjectAeonOVC-2026-09-14_001 --status
+    uv run python scripts/pipeline/populate_pose.py ProjectAeonOVC-2026-09-14_001 --downstream --processes 8
 
 Inserts the SleapTrackingMethod/CameraView rows (idempotent), patches
 foragingABC to call legacy `sleap-track` (see sleap_legacy.py), then populates.
@@ -42,6 +43,9 @@ parser.add_argument("-w", "--max-wait", type=float, default=0,
                     help="Random 0..MAX_WAIT s delay before populate, to stagger SLURM array tasks")
 parser.add_argument("--status", action="store_true", help="Print progress and exit")
 parser.add_argument("--retry-errors", action="store_true", help="Delete all error jobs first, so they are retried")
+parser.add_argument("--downstream", action="store_true",
+                    help="Populate PoseQC, PositionPixel, PositionCM, HeadingDirection and "
+                         "ovc_behav.EarHeading (CPU only) and exit")
 args = parser.parse_args()
 
 # One intra-op thread per job unless the shell/SLURM already set it
@@ -102,6 +106,22 @@ def reset_interrupted():
 
 if args.status:
     print_status()
+    raise SystemExit(0)
+
+if args.downstream:
+    # CPU-only tables computed from SleapRawTracking.pose_data; only chunks
+    # with a SleapRawTracking row are processed, so re-run after SLEAP finishes.
+    from src.dj_pipeline import ovc_behav
+
+    n_sleap = len(pose.SleapRawTracking & restriction)
+    for table in (pose.PoseQC, pose.PositionPixel, pose.PositionCM, pose.HeadingDirection,
+                  ovc_behav.EarHeading):
+        result = table.populate(restriction, display_progress=True, reserve_jobs=True,
+                                suppress_errors=True, processes=args.processes)
+        print(f"{table.__name__}: {len(table & restriction)}/{n_sleap} chunks, "
+              f"{len(result['error_list'])} error(s)", flush=True)
+        for key, err in result["error_list"][:3]:
+            print(f"  {key.get('chunk_start')}  {str(err)[:200]}", flush=True)
     raise SystemExit(0)
 
 pose.SleapTrackingMethod.insert1(
