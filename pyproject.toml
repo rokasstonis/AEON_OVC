@@ -20,7 +20,7 @@ dependencies = [
     "pyarrow==19.0.1",
     # SLEAP pose pipeline (foragingabc.dj_pipeline.pose) and its deps
     "foragingabc-analysis",
-    "movement",
+    "movement>=0.15",  # foragingABC expects singular dims (keypoint, individual); needs numpy>=2
     "opencv-python>=4.8",
     "xarray",
     "netCDF4",
@@ -44,7 +44,9 @@ packages = ["src"]
 # swc-aeon-rigs-foragingabc is a private (ssh) rig package that foragingABC
 # needs only for abc_task/feeder, which we don't import; never install it.
 # cv2.typing (used by swc.aeon.io.video) was added in OpenCV 4.8.
+# swc-aeon-ovc pins matplotlib~=3.7.1, whose wheels predate numpy 2.
 override-dependencies = [
+    "matplotlib>=3.9",
     "swc-aeon>=0.1.0",
     "swc-aeon-rigs-foragingabc; python_version < '3'",
     "aeon-mecha[spike_sorting] @ file:///${PROJECT_ROOT}/submodules/aeon_mecha",
