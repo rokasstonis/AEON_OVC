@@ -35,7 +35,7 @@
 #SBATCH --cpus-per-task=8                    # fork_safe_job_kwargs caps SI workers at 8
 #SBATCH --mem=64G
 #SBATCH --time=1-00:00:00
-#SBATCH --array=1-6                          # 6 parallel workers draining the entries
+#SBATCH --array=1-4                          # 6 parallel workers draining the entries
 #SBATCH --output=slurm_output/postsort_%A_%a.out
 #SBATCH --error=slurm_output/postsort_%A_%a.err
 #SBATCH --mail-type=END,FAIL
