@@ -48,3 +48,40 @@ print(per_block.to_string())
 
 print("\nKilosort / curation label (rows) vs bombcell label (columns):")
 print(pd.crosstab(df["unit_quality"], df["bombcell_label"], margins=True, margins_name="total").to_string())
+
+# ---- Unit matching: a unit is "matched" if its global unit spans 2+ blocks ----
+gu = pd.DataFrame((ss.UnitMatching.Unit.proj("global_unit") & r).to_dicts())
+if gu.empty:
+    raise SystemExit("\nNo UnitMatching entries yet; run step 5 for the matching summary.")
+gu_key = ["subject", "insertion_number", "global_unit"]
+gu["n_blocks"] = gu.groupby(gu_key)["block_start"].transform("nunique")
+unit_key = ["subject", "insertion_number", "block_start", "electrode_group", "unit"]
+df = df.merge(gu[[*unit_key, "global_unit", "n_blocks"]], on=unit_key, how="left")
+df["matching"] = "no global unit"
+df.loc[df["n_blocks"] == 1, "matching"] = "this block only"
+df.loc[df["n_blocks"] > 1, "matching"] = "matched (2+ blocks)"
+
+print("\nUnits matched across blocks (global unit spans 2+ blocks), per block and shank:")
+matched = df[df["n_blocks"] > 1]
+per_block_matched = pd.crosstab(
+    [matched["block_start"], matched["electrode_group"]], matched["bombcell_label"], margins=True, margins_name="total"
+).reindex(columns=per_block.columns, fill_value=0)
+print(per_block_matched.to_string())
+
+print("\nMatching status (rows) vs bombcell label (columns), per-block units:")
+print(pd.crosstab(df["matching"], df["bombcell_label"], margins=True, margins_name="total").to_string())
+
+# One row per global unit: blocks spanned, and how consistently it is labelled good
+g = df.dropna(subset=["global_unit"]).groupby(gu_key).agg(
+    n_blocks=("n_blocks", "first"),
+    n_good=("bombcell_label", lambda s: int((s == "good").sum())),
+)
+g["blocks spanned"] = g["n_blocks"].clip(upper=6).astype(int).astype(str).replace("6", "6+")
+summary = g.groupby("blocks spanned").agg(
+    global_units=("n_blocks", "size"),
+    good_in_all_blocks=("n_good", lambda s: int((s == g.loc[s.index, "n_blocks"]).sum())),
+    good_in_any_block=("n_good", lambda s: int((s > 0).sum())),
+)
+summary.loc["total"] = summary.sum()
+print("\nGlobal units by number of blocks spanned:")
+print(summary.to_string())
