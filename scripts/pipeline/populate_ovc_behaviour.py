@@ -10,9 +10,12 @@ Run from the repo root (so datajoint.json is picked up), CPU only, after
 Steps (each skips what is already done):
   1. ObjectRegistration  <- <registration root>/<exp>/combined_registration.json (or --registration)
   2. SoundStimulus       <- streams.SoundCardSoundEvents + the epoch's sound bank
-  3. Kinematics          <- pose (one row per CameraTop chunk)
-  4. ObjectKinematics    <- Kinematics x objects present in that chunk
-  5. EscapeTrial         <- one row per sound stimulus (stats only, no escape label)
+  3. LightPeriod         <- acquisition.LightEvents (light / dark / unknown intervals); recomputed
+                            when more LightEvents chunks have been ingested since
+  4. ObjectLightOverlap  <- light / dark time within each object's presence interval
+  5. Kinematics          <- pose (one row per CameraTop chunk)
+  6. ObjectKinematics    <- Kinematics x objects present in that chunk
+  7. EscapeTrial         <- one row per sound stimulus (stats only, no escape label)
 
 After changing a registration file, use --replace-registration; that deletes the old
 objects and everything computed from them (ObjectKinematics, EscapeTrial) first.
@@ -30,11 +33,13 @@ args = parser.parse_args()
 
 from pathlib import Path  # noqa: E402 (after argparse so --help needs no DB)
 
+from aeon.dj_pipeline import acquisition  # noqa: E402
 from foragingabc.dj_pipeline import pose  # noqa: E402
 from src.dj_pipeline import ovc_behav, registration  # noqa: E402
 
 r = {"experiment_name": args.experiment_name}
-TABLES = (ovc_behav.SoundStimulus, ovc_behav.Kinematics, ovc_behav.ObjectKinematics, ovc_behav.EscapeTrial)
+TABLES = (ovc_behav.SoundStimulus, ovc_behav.LightPeriod, ovc_behav.ObjectLightOverlap, ovc_behav.Kinematics,
+          ovc_behav.ObjectKinematics, ovc_behav.EscapeTrial)
 
 
 def print_status():
@@ -43,6 +48,10 @@ def print_status():
     print(f"pose.PositionCM:           {len(pose.PositionCM & r)} chunks")
     print(f"SoundStimulus:             {len(ovc_behav.SoundStimulus & r)} chunks, "
           f"{len(ovc_behav.SoundStimulus.Event & r)} events")
+    periods = ovc_behav.LightPeriod.Period & r
+    n_dark, n_unknown = len(periods & {"condition": "dark"}), len(periods & {"condition": "unknown"})
+    print(f"LightPeriod:               {n_dark} dark, {n_unknown} unknown of {len(periods)} periods")
+    print(f"ObjectLightOverlap:        {len(ovc_behav.ObjectLightOverlap & r)} objects")
     print(f"Kinematics:                {len(ovc_behav.Kinematics & r)} chunks")
     print(f"ObjectKinematics:          {len(ovc_behav.ObjectKinematics & r)} (chunk, object) rows "
           f"of {len(ovc_behav.ObjectKinematics().key_source & r)}")
@@ -58,6 +67,12 @@ if not args.status:
         registration.ingest(args.experiment_name, path, replace=args.replace_registration)
     else:
         print(f"No registration file at {path}; object tables stay empty.")
+
+    # LightPeriod covers the LightEvents chunks present when it ran; redo it if more arrived since
+    light = ovc_behav.LightPeriod & r
+    if light and light.fetch1("n_light_chunks") < len(acquisition.LightEvents & r):
+        print("More LightEvents chunks than when LightPeriod ran; recomputing LightPeriod and ObjectLightOverlap.")
+        light.delete(prompt=False)
 
     for table in TABLES:
         result = table.populate(r, display_progress=True, reserve_jobs=True,

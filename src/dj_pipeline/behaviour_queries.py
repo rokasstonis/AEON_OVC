@@ -7,6 +7,9 @@
     objs = bq.fetch_object_kinematics(exp, "2026-09-15 10:00", "2026-09-15 10:30", identity="Shelter")
     # -> {object_id: xr.Dataset}; two objects present at once give two entries
     stims = bq.fetch_sound_events(exp)                                          # DataFrame
+    light = bq.fetch_light_periods(exp)                       # light / dark / unknown intervals
+    obj_light = bq.fetch_object_light(exp)                    # light / dark seconds per object
+    kin = bq.fetch_kinematics(exp, start, end, with_light=True)  # adds a per-frame light_condition
     trials = bq.fetch_escape_trials(exp)                                        # one row per stimulus
     traj = bq.fetch_trial_trajectory(exp, trials.iloc[0]["stim_onset"])         # xr.Dataset
 
@@ -19,7 +22,17 @@ import xarray as xr
 
 from aeon.dj_pipeline import acquisition
 
-from .ovc_behav import CAMERA, EscapeTrial, Kinematics, ObjectKinematics, ObjectRegistration, SoundStimulus
+from .ovc_behav import (
+    CAMERA,
+    EscapeTrial,
+    Kinematics,
+    LightPeriod,
+    ObjectKinematics,
+    ObjectLightOverlap,
+    ObjectRegistration,
+    SoundStimulus,
+)
+from .stimuli import condition_at
 
 
 def _chunks(experiment_name, start=None, end=None):
@@ -42,16 +55,25 @@ def _concat(datasets, start, end):
     return ds.isel(time=np.sort(unique_idx))
 
 
-def fetch_kinematics(experiment_name, start=None, end=None, camera=CAMERA):
-    """Kinematics between start and end (whole experiment if both None), one Dataset."""
+def _with_light(ds, experiment_name):
+    periods = (LightPeriod.Period & {"experiment_name": experiment_name}).to_dicts()
+    return ds.assign(light_condition=("time", condition_at(ds["time"].values, periods).astype(str)))
+
+
+def fetch_kinematics(experiment_name, start=None, end=None, camera=CAMERA, with_light=False):
+    """Kinematics between start and end (whole experiment if both None), one Dataset.
+    with_light adds light_condition per frame ('light' / 'dark' / 'unknown', '' if not covered)."""
     rows = (Kinematics & {"device_name": camera} & _chunks(experiment_name, start, end)).to_dicts(
         order_by="chunk_start"
     )
-    return _concat([r["kinematics_data"] for r in rows], start, end)
+    ds = _concat([r["kinematics_data"] for r in rows], start, end)
+    return _with_light(ds, experiment_name) if with_light and ds is not None else ds
 
 
-def fetch_object_kinematics(experiment_name, start=None, end=None, identity=None, object_id=None, camera=CAMERA):
-    """{object_id: Dataset} of head-relative variables between start and end."""
+def fetch_object_kinematics(experiment_name, start=None, end=None, identity=None, object_id=None, camera=CAMERA,
+                            with_light=False):
+    """{object_id: Dataset} of head-relative variables between start and end (with_light: see
+    fetch_kinematics)."""
     q = ObjectKinematics & {"device_name": camera} & _chunks(experiment_name, start, end)
     if identity is not None:
         q &= (ObjectRegistration.Object & {"identity": identity}).proj()
@@ -61,7 +83,26 @@ def fetch_object_kinematics(experiment_name, start=None, end=None, identity=None
     for row in q.to_dicts(order_by="chunk_start"):
         by_object.setdefault(row["object_id"], []).append(row["object_kinematics"])
     out = {oid: _concat(parts, start, end) for oid, parts in by_object.items()}
-    return {oid: ds for oid, ds in out.items() if ds is not None}
+    out = {oid: ds for oid, ds in out.items() if ds is not None}
+    return {oid: _with_light(ds, experiment_name) for oid, ds in out.items()} if with_light else out
+
+
+def fetch_light_periods(experiment_name, condition=None):
+    """Light / dark / unknown intervals (DataFrame); condition restricts to one of them."""
+    q = LightPeriod.Period & {"experiment_name": experiment_name}
+    if condition is not None:
+        q &= {"condition": condition}
+    return pd.DataFrame(q.to_dicts(order_by="period_start"))
+
+
+def fetch_object_light(experiment_name, periods=False):
+    """Per object: identity, position, presence interval and light / dark / unknown seconds.
+    periods=True instead returns every light period clipped to each object's interval."""
+    r = {"experiment_name": experiment_name}
+    objects = ObjectRegistration.Object.proj("identity", "position_category", "object_onset", "object_offset")
+    if periods:
+        return pd.DataFrame((ObjectLightOverlap.Period * objects & r).to_dicts(order_by=["object_id", "overlap_start"]))
+    return pd.DataFrame((ObjectLightOverlap * objects & r).to_dicts(order_by="object_id"))
 
 
 def fetch_objects(experiment_name):

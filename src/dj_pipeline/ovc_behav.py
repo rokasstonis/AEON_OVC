@@ -4,6 +4,8 @@ Built on foragingABC's pose chain (foragingabc.dj_pipeline.pose):
 - EarHeading       : ear-axis heading in image coordinates (kept for comparison)
 - ObjectRegistration (+ .Object) : shelter/object polygons and presence intervals (registration.py)
 - SoundStimulus (+ .Event)       : sound-card play events with nominal offsets (stimuli.py)
+- LightPeriod (+ .Period)         : light / dark / unknown intervals from Environment LightEvents
+- ObjectLightOverlap (+ .Period)  : light / dark time within each object's presence interval
 - Kinematics       : centroid/head position, speed, head/body/movement direction, angular head
                      velocity in the arena cm frame (kinematics.py)
 - ObjectKinematics : head relative to each present object: distances, bearings, radial velocity
@@ -152,6 +154,105 @@ class SoundStimulus(dj.Computed):
             })
         self.Event.insert(rows)
 
+
+
+# ---- Light / dark ----
+
+
+@schema
+class LightPeriod(dj.Computed):
+    definition = """  # light / dark / unknown periods of one experiment, from Environment LightEvents ch 3/7 only
+    -> acquisition.Experiment
+    ---
+    n_light_chunks: int32     # LightEvents chunks used; repopulate after more chunks are ingested
+    light_s: float32
+    dark_s: float32
+    unknown_s: float32        # logging gaps while the light was on
+    n_dark: int32
+    """
+
+    class Period(dj.Part):
+        definition = """  # a dark period ends at the next logged light sample (up to ~60 s late)
+        -> master
+        period_start: datetime(6)
+        ---
+        period_end: datetime(6)
+        condition: varchar(8)     # light / dark / unknown
+        duration_s: float32
+        """
+
+    @property
+    def key_source(self):
+        return acquisition.Experiment & acquisition.LightEvents
+
+    def make(self, key):
+        chunks = (acquisition.LightEvents & key).proj()
+        end_time = max((acquisition.Chunk & chunks).to_arrays("chunk_end"))
+        frames = [df for df in (acquisition.LightEvents & key).to_arrays("stream_df") if df is not None and len(df)]
+        periods = stimuli.light_periods(pd.concat(frames) if frames else None, end_time)
+        durations = [(p["period_end"] - p["period_start"]).total_seconds() for p in periods]
+        total = {c: sum(d for p, d in zip(periods, durations, strict=True) if p["condition"] == c)
+                 for c in ("light", "dark", "unknown")}
+        self.insert1({
+            **key,
+            "n_light_chunks": len(chunks),
+            "light_s": total["light"],
+            "dark_s": total["dark"],
+            "unknown_s": total["unknown"],
+            "n_dark": sum(p["condition"] == "dark" for p in periods),
+        })
+        self.Period.insert([{
+            **key,
+            "period_start": p["period_start"].to_pydatetime(),
+            "period_end": p["period_end"].to_pydatetime(),
+            "condition": p["condition"],
+            "duration_s": d,
+        } for p, d in zip(periods, durations, strict=True)])
+
+
+@schema
+class ObjectLightOverlap(dj.Computed):
+    definition = """  # light / dark time while one shelter/object is present
+    -> ObjectRegistration.Object
+    -> LightPeriod
+    ---
+    light_s: float32
+    dark_s: float32
+    unknown_s: float32
+    n_dark: int32             # dark periods overlapping the presence interval
+    """
+
+    class Period(dj.Part):
+        definition = """  # one light period clipped to the object's presence interval
+        -> master
+        -> LightPeriod.Period
+        ---
+        overlap_start: datetime(6)
+        overlap_end: datetime(6)
+        condition: varchar(8)
+        duration_s: float32
+        """
+
+    def make(self, key):
+        onset, offset = (ObjectRegistration.Object & key).fetch1("object_onset", "object_offset")
+        periods = (LightPeriod.Period & key).to_dicts(order_by="period_start")
+        parts = stimuli.overlap(periods, onset, offset)
+        total = {c: sum(p["duration_s"] for p in parts if p["condition"] == c) for c in ("light", "dark", "unknown")}
+        self.insert1({
+            **key,
+            "light_s": total["light"],
+            "dark_s": total["dark"],
+            "unknown_s": total["unknown"],
+            "n_dark": sum(p["condition"] == "dark" for p in parts),
+        })
+        self.Period.insert([{
+            **key,
+            "period_start": p["period_start"],
+            "overlap_start": p["overlap_start"].to_pydatetime(),
+            "overlap_end": p["overlap_end"].to_pydatetime(),
+            "condition": p["condition"],
+            "duration_s": p["duration_s"],
+        } for p in parts])
 
 # ---- Kinematics ----
 

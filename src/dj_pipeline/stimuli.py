@@ -73,3 +73,81 @@ def first_time(times, mask):
     """First time where mask is True, or None."""
     idx = np.flatnonzero(np.asarray(mask))
     return None if idx.size == 0 else times[idx[0]]
+
+
+# ---- Light / dark periods ----
+# Environment LightEvents logs channels 3/7 every ~60 s while the light is on. Dark episodes are a
+# single 0 sample at the switch, then nothing until the light is back, so a dark period ends at
+# the next non-zero sample, up to LOG_INTERVAL_S after the light actually returned.
+
+LOG_INTERVAL_S = 60.0
+MAX_LIGHT_GAP_S = 300.0  # longer silences while the light is on are logging gaps -> "unknown"
+
+
+def light_periods(light_df, end_time):
+    """Split the experiment into light / dark / unknown periods.
+
+    light_df : LightEvents stream (time index, columns channel, value), any number of chunks
+    end_time : end of the last ingested chunk; the final period is closed there
+
+    Returns a list of dicts: period_start, period_end, condition ("light" | "dark" | "unknown").
+    """
+    if light_df is None or len(light_df) == 0:
+        return []
+    df = light_df[light_df["channel"].isin(LIGHT_CHANNELS)].sort_index()
+    times, values = df.index.to_numpy(), df["value"].to_numpy(dtype=float)
+    log_interval = pd.Timedelta(seconds=LOG_INTERVAL_S)
+    max_gap = pd.Timedelta(seconds=MAX_LIGHT_GAP_S)
+    periods = []
+
+    def close(start, end, condition):
+        if end > start:
+            if periods and periods[-1]["condition"] == condition and periods[-1]["period_end"] == start:
+                periods[-1]["period_end"] = end
+            else:
+                periods.append({"period_start": start, "period_end": end, "condition": condition})
+
+    state, start, last = None, None, None
+    for t, v in zip(pd.to_datetime(times), values, strict=True):
+        new_state = "dark" if v == 0 else "light"
+        if state == "light" and t - last > max_gap:  # silence while light: logging gap
+            close(start, last + log_interval, "light")
+            close(last + log_interval, t, "unknown")
+            state, start = None, None
+        if new_state != state:
+            if state is not None:
+                close(start, t, state)
+            state, start = new_state, t
+        last = t
+    end_time = pd.Timestamp(end_time)
+    if state == "light" and end_time - last > max_gap:
+        close(start, last + log_interval, "light")
+        close(last + log_interval, end_time, "unknown")
+    else:
+        close(start, max(end_time, last), state)
+    return periods
+
+
+def overlap(periods, start, end):
+    """Parts of `periods` inside [start, end) (end None = open), as dicts with overlap_start,
+    overlap_end, duration_s plus the period's own fields."""
+    start = pd.Timestamp(start)
+    end = None if end is None else pd.Timestamp(end)
+    out = []
+    for p in periods:
+        s = max(pd.Timestamp(p["period_start"]), start)
+        e = pd.Timestamp(p["period_end"]) if end is None else min(pd.Timestamp(p["period_end"]), end)
+        if e > s:
+            out.append({**p, "overlap_start": s, "overlap_end": e, "duration_s": (e - s).total_seconds()})
+    return out
+
+
+def condition_at(times, periods):
+    """Light condition ('light' / 'dark' / 'unknown', '' outside all periods) for each time."""
+    times = np.asarray(times, dtype="datetime64[ns]")
+    out = np.full(len(times), "", dtype=object)
+    for p in periods:
+        s = np.datetime64(pd.Timestamp(p["period_start"]), "ns")
+        e = np.datetime64(pd.Timestamp(p["period_end"]), "ns")
+        out[(times >= s) & (times < e)] = p["condition"]
+    return out
