@@ -75,6 +75,11 @@ if not args.status:
         light.delete(prompt=False)
 
     for table in TABLES:
+        # populate skips keys whose job failed before; clear them so fixed code gets another go
+        errors = table.jobs & r & {"status": "error"}
+        if errors:
+            print(f"{table.__name__}: retrying {len(errors)} key(s) that failed in an earlier run", flush=True)
+            errors.delete_quick()
         result = table.populate(r, display_progress=True, reserve_jobs=True,
                                 suppress_errors=True, processes=args.processes)
         print(f"{table.__name__}: {len(result['error_list'])} error(s)", flush=True)

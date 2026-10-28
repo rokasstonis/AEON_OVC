@@ -10,6 +10,12 @@ LIGHT_CHANNELS = (3, 7)  # Environment LightEvents channels driving the arena li
 LIGHT_LOOKBACK = pd.Timedelta(hours=3)  # light is logged ~every 60 s, but not at all while dark
 
 
+def naive_utc(index):
+    """swc.aeon readers return UTC-aware times; DB datetimes (chunk_start, HARP) are naive UTC."""
+    index = pd.DatetimeIndex(index)
+    return index.tz_convert(None) if index.tz is not None else index
+
+
 def find_sound_bank(metadata):
     """Find the rig's soundBank list anywhere in an epoch metadata dict (or JSON string)."""
     if isinstance(metadata, str):
@@ -64,8 +70,9 @@ def last_light_value(light_df, t):
     """
     if light_df is None or len(light_df) == 0:
         return None
-    df = light_df[light_df["channel"].isin(LIGHT_CHANNELS)].sort_index()
-    df = df[df.index <= pd.Timestamp(t)]
+    df = light_df[light_df["channel"].isin(LIGHT_CHANNELS)]
+    df = df.set_axis(naive_utc(df.index)).sort_index()
+    df = df[df.index <= pd.Timestamp(t).tz_localize(None)]
     return None if df.empty else float(df["value"].iloc[-1])
 
 
@@ -94,7 +101,8 @@ def light_periods(light_df, end_time):
     """
     if light_df is None or len(light_df) == 0:
         return []
-    df = light_df[light_df["channel"].isin(LIGHT_CHANNELS)].sort_index()
+    df = light_df[light_df["channel"].isin(LIGHT_CHANNELS)]
+    df = df.set_axis(naive_utc(df.index)).sort_index()
     times, values = df.index.to_numpy(), df["value"].to_numpy(dtype=float)
     log_interval = pd.Timedelta(seconds=LOG_INTERVAL_S)
     max_gap = pd.Timedelta(seconds=MAX_LIGHT_GAP_S)
@@ -119,7 +127,7 @@ def light_periods(light_df, end_time):
                 close(start, t, state)
             state, start = new_state, t
         last = t
-    end_time = pd.Timestamp(end_time)
+    end_time = pd.Timestamp(end_time).tz_localize(None)
     if state == "light" and end_time - last > max_gap:
         close(start, last + log_interval, "light")
         close(last + log_interval, end_time, "unknown")

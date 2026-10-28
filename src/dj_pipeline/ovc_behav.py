@@ -137,6 +137,7 @@ class SoundStimulus(dj.Computed):
         ).fetch1("metadata")
         bank = stimuli.sound_bank_by_index(metadata)
 
+        df = df.set_axis(stimuli.naive_utc(df.index))
         df = df[~df.index.duplicated()]
         rows = []
         for t, sound_index in zip(df.index, df["sound_index"], strict=True):
