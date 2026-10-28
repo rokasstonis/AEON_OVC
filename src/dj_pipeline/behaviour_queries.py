@@ -120,13 +120,14 @@ def fetch_sound_events(experiment_name):
 
 
 def fetch_escape_trials(experiment_name, escape_paramset_id=1):
-    """One row per stimulus with response stats; per-object stats widened as
-    '<identity>_<stat>' (shelter_time_to_enter_s, object_distance_to_edge_at_onset, ...).
+    """One row per stimulus with response stats plus the sound's name and duration; per-object
+    stats widened as '<identity>_<stat>' (shelter_time_to_enter_s, object_distance_to_edge_at_onset, ...).
     If two objects of the same identity were present, the one nearest at onset is used;
     see fetch_escape_trial_objects for all of them."""
     r = {"experiment_name": experiment_name, "escape_paramset_id": escape_paramset_id}
     stats = [a for a in EscapeTrial.heading.secondary_attributes if a != "trajectory"]  # skip the file fetch
-    trials = pd.DataFrame((EscapeTrial & r).proj(*stats).to_dicts(order_by="stim_onset"))
+    sound = SoundStimulus.Event.proj("sound_name", "duration_s")
+    trials = pd.DataFrame(((EscapeTrial & r).proj(*stats) * sound).to_dicts(order_by="stim_onset"))
     if trials.empty:
         return trials
     objs = fetch_escape_trial_objects(experiment_name, escape_paramset_id)
