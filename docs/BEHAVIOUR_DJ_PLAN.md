@@ -19,6 +19,15 @@
   - Step 8 is restricted to `EXPERIMENT_NAME`.
   - The new step 9 populates every `streams.*` Imported table plus `acquisition.LightEvents`, `MessageLog` and `EnvironmentState`.
 
+- (2026-10-28) Objects, kinematics, sound stimuli and escape trials implemented in `src/dj_pipeline/` (tables in `ovc_behav.py`, run with `scripts/pipeline/populate_ovc_behaviour.py <exp>` after `populate_pose.py <exp> --downstream`):
+  - `ObjectRegistration` (+ `.Object`) from `/ceph/branco/Rokas/Ephys/Results/registration_tables/<exp>/combined_registration.json` (`registration.py`). Replaces the `ArenaLayout` placeholder. Rules: present from the registration time until 5 min before the next later registration; simultaneous registrations are all present; if the next registration has the same identity + position category the object continues with no gap (`merged_into_next`); `Shelter - NOT OBJECT` ignored; `Shelter - Trace` kept as a shelter (category `trace`). Polygons mapped to cm with foragingABC `cm_convert.map_pixel_to_cm`.
+  - `SoundStimulus` (+ `.Event`) from `streams.SoundCardSoundEvents`; offset = onset + duration parsed from the epoch sound bank file name (the sound card logs no stop event).
+  - `Kinematics` per CameraTop chunk (`kinematics.py`): centroid (as PositionCM) and head (ear midpoint) position, velocity, speed, head direction (ear axis, cm frame), body direction (mid(spine3, spine4) -> spine1), movement direction (speed >= 5 cm/s), angular head velocity. 2 s of the neighbouring chunks are used so derivatives have no chunk-edge artefacts.
+  - `ObjectKinematics` per (chunk, object present): distance to centre and to the polygon edge (signed, < 0 inside), object-centred head position, allocentric bearing atan2(centre - head), egocentric bearings vs head/body/movement direction, radial velocity (d distance_to_centre / dt, < 0 approach).
+  - `EscapeParams` + `EscapeTrial` (+ `.Object`) per stimulus: light value / is_dark before onset, baseline and peak speed, latencies, per-object onset distances/bearings, min edge distance and time to enter, and a -5..+15 s trajectory. Stats only, no escape label (user's choice).
+  - Conventions: arena cm frame (y up); angles in degrees, 0 = +x, counter-clockwise, [-180, 180); egocentric = allocentric - direction, wrapped (0 ahead, + left). Object metrics use the head (ear midpoint).
+  - Query helpers: `src/dj_pipeline/behaviour_queries.py`.
+
 **Next up**
 1. Per-session behaviour ingestion. Set `EXPERIMENT_NAME` and `DATA_DIR_RELATIVE` in `setup_pipeline.py` to the session, then run `--step 5`, `7`, `8` and `9` after the ephys step01. Steps 2–4 are once per database and already done. Done for `ProjectAeonOVC-2026-09-14_001` once step 9 passes.
 2. Install foragingABC as a uv path dependency (see Step 2). Then run `import foragingabc.dj_pipeline.pose` as a smoke test.
@@ -28,7 +37,7 @@
 - SLEAP inference must use the user's legacy SLEAP 1.4 `sleap_legacy` TensorFlow env. The models perform poorly under sleap-nn (SLEAP ≥1.5).
 - `scripts/hpc/submit_sleap.sh` belongs to a separate behaviour workflow. Don't modify it, and don't use it for DataJoint.
 - The user has write access to `/ceph/aeon/aeon/data/processed`.
-- Shelter and object positions move within a session and are registered separately. `ArenaLayout` is a TODO placeholder for now.
+- Shelter and object positions move within a session and are registered separately; they are ingested into `ObjectRegistration` (see the 2026-10-28 progress note). The Step 3 `ArenaLayout`, `Speed` and `EscapeTrial` designs below are superseded by it.
 - CameraTop and the arena match foragingABC's AEON3 setup, so its calibration is reused.
 - Ephys and behaviour share the per-session experiment names (`ProjectAeonOVC-<date>_NNN`).
 
@@ -220,6 +229,6 @@ All tables use the foragingABC `abc_task.StateTransitions` pattern: `get_stream_
 7. Re-running populate inserts nothing new.
 
 ## Decisions (confirmed 2026-10-21)
-- **Shelter and object positions** come from a separate registration table, to be ingested later. For now, `ArenaLayout` is a placeholder marked TODO and its dependent trial fields are nullable.
+- **Shelter and object positions** come from the per-session registration files, ingested into `ObjectRegistration` (2026-10-28).
 - **Calibration:** CameraTop and the arena match foragingABC's AEON3 setup, so the existing calibration is reused.
 - **Naming:** ephys and behaviour share the per-session experiment names from step01 (`ProjectAeonOVC-<date>_NNN`).

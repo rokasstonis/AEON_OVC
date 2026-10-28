@@ -21,6 +21,60 @@ SIGN_REF_KPS = ["nose", "head"]
 SIGN_FALLBACK_KP = "spine1"  # behind the ears, so ref = ear_mid - spine1
 
 
+def ear_forward_vector(L, R, refs, fallback, y_down=True):
+    """Forward vector perpendicular to the ear axis, sign-checked against the snout.
+
+    L, R     : (T, 2) left/right ear positions.
+    refs     : list of (T, 2) arrays (nose, head, ...) or None, in order of preference;
+               forward must point from the ear midpoint towards the first one present.
+    fallback : (T, 2) keypoint behind the ears (spine1) or None; used as ear_mid - fallback.
+    y_down   : True for image coordinates, False for a y-up frame such as world cm.
+               Only sets which perpendicular is taken before the sign check.
+
+    Returns dict with f (T, 2), ear_mid, e (R - L), valid, has_ref, used_fallback, flip.
+    """
+    T = L.shape[0]
+    ear_mid = (L + R) / 2
+    e = R - L
+
+    # Facing up with the right ear on +x: e = (+1, 0) -> f = (0, -1) in image coords, (0, +1) y-up
+    if y_down:
+        f = np.stack([e[:, 1], -e[:, 0]], axis=1)  # (T, 2)
+    else:
+        f = np.stack([-e[:, 1], e[:, 0]], axis=1)
+    valid = ~np.isnan(f).any(axis=1)
+
+    ref = np.full((T, 2), np.nan)
+    for arr in refs:
+        if arr is None:
+            continue
+        fill = np.isnan(ref).any(axis=1)
+        ref[fill] = arr[fill] - ear_mid[fill]
+    used_fallback = np.isnan(ref).any(axis=1)
+    if fallback is not None:
+        ref[used_fallback] = ear_mid[used_fallback] - fallback[used_fallback]
+    has_ref = ~np.isnan(ref).any(axis=1)
+
+    flip = valid & has_ref & ((f * ref).sum(axis=1) < 0)
+    f[flip] *= -1
+    return {"f": f, "ear_mid": ear_mid, "e": e, "valid": valid, "has_ref": has_ref,
+            "used_fallback": used_fallback, "flip": flip}
+
+
+def ear_confidence(e, valid, has_ref, used_fallback):
+    """Ear separation relative to its median (0-1); halved when the sign came from spine1 only,
+    0 when the sign could not be checked or an ear is missing."""
+    T = e.shape[0]
+    # Ears close together = head tilted/turned or an ear misplaced.
+    ear_sep = np.sqrt((e ** 2).sum(axis=1))
+    median_sep = np.nanmedian(ear_sep[valid]) if valid.any() else np.nan
+    conf = np.clip(ear_sep / median_sep, 0, 1) if median_sep > 0 else np.zeros(T)
+    conf = np.where(valid & used_fallback, conf / 2, conf)  # sign from spine1 only
+    conf = np.where(valid & ~has_ref, 0.0, conf)  # sign could not be checked
+    conf[~valid] = 0.0
+    return conf
+
+
 def compute_ear_heading(ds: xr.Dataset,
                         raw_attrs: dict | None = None,
                         savgol_window: int = 11,
@@ -65,44 +119,22 @@ def compute_ear_heading(ds: xr.Dataset,
     flip_frac = []
 
     for ii in range(I):
-        L, R = left[:, :, ii], right[:, :, ii]  # (T, 2)
-        ear_mid = (L + R) / 2
-        e = R - L
-
-        # --- forward = perpendicular to the ear axis ---
-        # Image coords (y down): facing up -> e = (+1, 0) -> f = (0, -1)
-        f = np.stack([e[:, 1], -e[:, 0]], axis=1)  # (T, 2)
-        valid = ~np.isnan(f).any(axis=1)
-
-        # --- sign check: forward must point towards the snout ---
-        ref = np.full((T, 2), np.nan)
-        for arr in refs:
-            if arr is None:
-                continue
-            fill = np.isnan(ref).any(axis=1)
-            ref[fill] = arr[fill, :, ii] - ear_mid[fill]
-        used_fallback = np.isnan(ref).any(axis=1)
-        if fallback is not None:
-            ref[used_fallback] = ear_mid[used_fallback] - fallback[used_fallback, :, ii]
-        has_ref = ~np.isnan(ref).any(axis=1)
-
-        flip = valid & has_ref & ((f * ref).sum(axis=1) < 0)
-        f[flip] *= -1
-        n_checked = int((valid & has_ref).sum())
-        flip_frac.append(float(flip.sum() / n_checked) if n_checked else float("nan"))
+        # --- forward = perpendicular to the ear axis, pointing towards the snout ---
+        fw = ear_forward_vector(
+            left[:, :, ii], right[:, :, ii],
+            [None if arr is None else arr[:, :, ii] for arr in refs],
+            None if fallback is None else fallback[:, :, ii],
+        )
+        f, valid = fw["f"], fw["valid"]
+        n_checked = int((valid & fw["has_ref"]).sum())
+        flip_frac.append(float(fw["flip"].sum() / n_checked) if n_checked else float("nan"))
 
         # --- angle: 0 = up/north, clockwise, image coords (y downward) ---
         angle = (-np.degrees(np.arctan2(-f[:, 1], f[:, 0])) + 90) % 360
         angle[~valid] = np.nan
 
         # --- confidence: apparent ear separation relative to typical ---
-        # Ears close together = head tilted/turned or an ear misplaced.
-        ear_sep = np.sqrt((e ** 2).sum(axis=1))
-        median_sep = np.nanmedian(ear_sep[valid]) if valid.any() else np.nan
-        conf = np.clip(ear_sep / median_sep, 0, 1) if median_sep > 0 else np.zeros(T)
-        conf = np.where(valid & used_fallback, conf / 2, conf)  # sign from spine1 only
-        conf = np.where(valid & ~has_ref, 0.0, conf)  # sign could not be checked
-        conf[~valid] = 0.0
+        conf = ear_confidence(fw["e"], valid, fw["has_ref"], fw["used_fallback"])
 
         n_invalid = int((~valid).sum())
         if n_invalid:
