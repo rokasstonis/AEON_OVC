@@ -48,4 +48,4 @@ for exp in args.experiment_names:
     found = pd.Series([starts.get(pd.Timestamp(t).to_pydatetime(), "no matching CSV") for t in rows]).value_counts()
     late = int(found.get("Seconds", 0))
     verdict = "1 s LATE - re-ingest sync models" if late else "OK (fitted on Value.HarpTime)"
-    print(f"{exp}: {len(rows)} sync models -> {dict(found)}  => {verdict}")
+    print(f"{exp}: {len(rows)} sync models -> {({k: int(v) for k, v in found.items()})}  => {verdict}")
