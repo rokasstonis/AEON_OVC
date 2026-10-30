@@ -7,7 +7,8 @@ Run from the repo root (so datajoint.json is picked up), after step 4
     uv run python scripts/pipeline/populate_bombcell.py ProjectAeonOVC-2026-08-31_001 --status
 
 Labels go to ovc_bombcell.BombcellLabel.Unit; fetch spikes filtered by them with
-src.dj_pipeline.unit_spikes. Only units in SortedSpikes are labelled, i.e. those
+src.dj_pipeline.unit_spikes. Labels are stored per block; the matching tables use
+effective labels, where a global unit that is good in any block is good in all of them. Only units in SortedSpikes are labelled, i.e. those
 carried forward from sorting (Kilosort "good" only while paramset 403 keeps
 keep_good_only=True).
 """
@@ -24,6 +25,7 @@ import pandas as pd  # noqa: E402 (after argparse so --help needs no DB)
 
 from aeon.dj_pipeline import spike_sorting as ss  # noqa: E402
 from src.dj_pipeline import bombcell  # noqa: E402
+from src.dj_pipeline.unit_spikes import GOOD, effective_labels  # noqa: E402
 
 r = {"experiment_name": args.experiment_name}
 p = {"bombcell_paramset_id": args.paramset}
@@ -61,27 +63,39 @@ df["matching"] = "no global unit"
 df.loc[df["n_blocks"] == 1, "matching"] = "this block only"
 df.loc[df["n_blocks"] > 1, "matching"] = "matched (2+ blocks)"
 
+# A global unit that is good in any block counts as good in all its blocks (stored labels unchanged)
+df["effective_label"] = effective_labels(df)
+promoted = df[df["effective_label"] != df["bombcell_label"]]
+print(f"\nRelabelled good via their global unit (good in another block): {len(promoted)} per-block units"
+      + (f" (were {', '.join(f'{q}: {n}' for q, n in promoted['bombcell_label'].value_counts().items())})"
+         if len(promoted) else ""))
+print("The tables below use these effective labels.")
+
 print("\nUnits matched across blocks (global unit spans 2+ blocks), per block and shank:")
 matched = df[df["n_blocks"] > 1]
 per_block_matched = pd.crosstab(
-    [matched["block_start"], matched["electrode_group"]], matched["bombcell_label"], margins=True, margins_name="total"
-).reindex(columns=per_block.columns, fill_value=0)
+    [matched["block_start"], matched["electrode_group"]], matched["effective_label"], margins=True,
+    margins_name="total"
+).reindex(columns=per_block.columns, fill_value=0).rename_axis(columns="effective_label")
 print(per_block_matched.to_string())
 
-print("\nMatching status (rows) vs bombcell label (columns), per-block units:")
-print(pd.crosstab(df["matching"], df["bombcell_label"], margins=True, margins_name="total").to_string())
+print("\nMatching status (rows) vs effective label (columns), per-block units:")
+print(pd.crosstab(df["matching"], df["effective_label"], margins=True, margins_name="total").to_string())
 
-# One row per global unit: blocks spanned, and how consistently it is labelled good
+# One row per global unit: blocks spanned and its label (good if good in any block, else its most common label)
 g = df.dropna(subset=["global_unit"]).groupby(gu_key).agg(
     n_blocks=("n_blocks", "first"),
-    n_good=("bombcell_label", lambda s: int((s == "good").sum())),
+    global_label=("bombcell_label", lambda s: GOOD if (s == GOOD).any() else s.mode().iloc[0]),
 )
-g["blocks spanned"] = g["n_blocks"].clip(upper=6).astype(int).astype(str).replace("6", "6+")
-summary = g.groupby("blocks spanned").agg(
-    global_units=("n_blocks", "size"),
-    good_in_all_blocks=("n_good", lambda s: int((s == g.loc[s.index, "n_blocks"]).sum())),
-    good_in_any_block=("n_good", lambda s: int((s > 0).sum())),
-)
+summary = pd.crosstab(g["n_blocks"].astype(int).rename("blocks spanned"), g["global_label"])
+summary.columns.name = None
+summary = summary[[GOOD, *sorted(c for c in summary.columns if c != GOOD)] if GOOD in summary else list(summary)]
+summary.insert(0, "global_units", summary.sum(axis=1))
+# Units spanning at least n blocks: sum the exact-span rows from the longest span down
+at_least = summary[::-1].cumsum()[::-1]
+at_least.index.name = "at least n blocks"
 summary.loc["total"] = summary.sum()
-print("\nGlobal units by number of blocks spanned:")
+print("\nGlobal units by number of blocks spanned (each unit counted once, at its exact span), by global label:")
 print(summary.to_string())
+print("\nGlobal units spanning at least n blocks (cumulative; n = all blocks = tracked start to end):")
+print(at_least.to_string())

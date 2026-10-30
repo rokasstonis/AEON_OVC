@@ -5,6 +5,13 @@ Run from the repo root (so datajoint.json is picked up):
     uv run python scripts/pipeline/unit_matching_summary.py ProjectAeonOVC-2026-08-31_001
     uv run python scripts/pipeline/unit_matching_summary.py ProjectAeonOVC-2026-08-31_001 --quality good
     uv run python scripts/pipeline/unit_matching_summary.py ProjectAeonOVC-2026-08-31_001 --units
+    uv run python scripts/pipeline/unit_matching_summary.py ProjectAeonOVC-2026-08-31_001 --bombcell-paramset 1
+
+Bombcell sections (labels from ovc_bombcell.BombcellLabel, run populate_bombcell.py first), over all matched
+units regardless of --quality:
+  - chunk to chunk: for each pair of consecutive sorting blocks on a shank, units in each, how many global units
+    continue into the next block, and how many of those are bombcell "good" in both / in either block;
+  - tracked to the end: per shank, global units present in every block, and how many are good in all of them.
 
 Unit matching includes every unit not labelled "noise". Without manual curation
 the labels are Kilosort's KSLabel (good/mua), so MUA is included; with manual
@@ -27,10 +34,13 @@ parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
 parser.add_argument("experiment_name", help="e.g. ProjectAeonOVC-2026-08-31_001")
 parser.add_argument("-q", "--quality", nargs="+", help="Only count these labels, e.g. --quality good ok")
 parser.add_argument("--units", action="store_true", help="Also list spike counts per global unit")
+parser.add_argument("-b", "--bombcell-paramset", type=int, default=1, help="BombcellParamSet id (default: 1)")
 args = parser.parse_args()
 
 from aeon.dj_pipeline import spike_sorting as ss  # noqa: E402 (after argparse so --help needs no DB)
+from src.dj_pipeline import bombcell  # noqa: E402
 
+GOOD = "good"
 r = {"experiment_name": args.experiment_name}
 keep = {q.lower() for q in args.quality} if args.quality else None
 
@@ -53,17 +63,40 @@ label_of = {
         )
     )
 }
-# Per-block global unit -> label in that block
-gu_label = {}
+# Per-block bombcell labels: (subject, insertion, block_start, shank, unit) -> bombcell label
+bc_of = {
+    (s, int(i), b, g, int(u)): str(q)
+    for s, i, b, g, u, q in zip(
+        *(bombcell.BombcellLabel.Unit & r & {"bombcell_paramset_id": args.bombcell_paramset}).to_arrays(
+            "subject", "insertion_number", "block_start", "electrode_group", "unit", "bombcell_label"
+        )
+    )
+}
+# Per-block global unit -> label / bombcell label in that block; global units per (shank, block)
+gu_label, gu_bc = {}, {}
+units_in = defaultdict(lambda: defaultdict(set))  # (subject, insertion, shank) -> {block_start: {global units}}
 for s, i, b, g, u, gu in zip(
     *(ss.UnitMatching.Unit & r).to_arrays(
         "subject", "insertion_number", "block_start", "electrode_group", "unit", "global_unit"
     )
 ):
-    gu_label[(s, int(i), b, g, int(gu))] = label_of.get((s, int(i), b, g, int(u)), "?")
+    i, u, gu = int(i), int(u), int(gu)
+    gu_label[(s, i, b, g, gu)] = label_of.get((s, i, b, g, u), "?")
+    gu_bc[(s, i, b, g, gu)] = bc_of.get((s, i, b, g, u), "?")
+    units_in[(s, i, g)][b].add(gu)
 
 print("\nUnits per block by label (all matched units, before --quality):")
 print("  " + ", ".join(f"{q}: {n}" for q, n in Counter(gu_label.values()).most_common()))
+print(f"Units per block by bombcell label (paramset {args.bombcell_paramset}):")
+print("  " + ", ".join(f"{q}: {n}" for q, n in Counter(gu_bc.values()).most_common()))
+# A global unit that is good in any block counts as good in all its blocks
+good_gu = {(s, i, gu) for (s, i, _, _, gu), q in gu_bc.items() if q == GOOD}
+effective = Counter(GOOD if (s, i, gu) in good_gu else q for (s, i, _, _, gu), q in gu_bc.items())
+print("  effective (good if the global unit is good in any block): "
+      + ", ".join(f"{q}: {n}" for q, n in effective.most_common()))
+print(f"Global units good in any block: {len(good_gu)} of {len({(s, i, gu) for s, i, _, _, gu in gu_bc})}")
+if not bc_of:
+    print("  (no bombcell labels for this experiment/paramset; run scripts/pipeline/populate_bombcell.py)")
 
 # (subject, insertion, shank) -> stats; (subject, insertion, global_unit) -> stats
 groups = defaultdict(lambda: {"units": set(), "spikes": 0, "chunks": set(), "synced_spikes": 0})
