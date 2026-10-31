@@ -119,10 +119,10 @@ def ingest(experiment_name, path=None, removal_lead_s=REMOVAL_LEAD_S, replace=Fa
 
     path defaults to REGISTRATION_ROOT/<experiment_name>/combined_registration.json.
     An existing entry is kept unless replace=True, which deletes it first (cascades to
-    ObjectKinematics and EscapeTrial).
+    ObjectKinematics, ObjectLightOverlap and EscapeTrial).
     """
     from .geometry import polygon_centroid
-    from .ovc_behav import ObjectRegistration
+    from .ovc_behav import EscapeTrial, ObjectRegistration
 
     path = Path(path) if path else REGISTRATION_ROOT / experiment_name / REGISTRATION_FILE
     key = {"experiment_name": experiment_name}
@@ -130,6 +130,9 @@ def ingest(experiment_name, path=None, removal_lead_s=REMOVAL_LEAD_S, replace=Fa
         if not replace:
             print(f"ObjectRegistration already has {experiment_name}; pass replace=True to re-ingest.")
             return
+        # All of the experiment's trials, not just those with an Object part: new offsets can change
+        # which objects are present at any onset (and the cascade can't delete EscapeTrial.Object alone)
+        (EscapeTrial & key).delete()
         (ObjectRegistration & key).delete()
 
     arena, objects = load_registration(path, removal_lead_s)
